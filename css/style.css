@@ -1,0 +1,939 @@
+/* Treasure Hunt — big, bright, rounded and friendly. */
+
+:root {
+  --bg: #141748;
+  --bg-glow: #242a86;
+  --wall: #3b47e0;
+  --wall-edge: #6b78ff;
+  --floor: #1d2160;
+  --floor-line: #262b78;
+  --ink: #ffffff;
+  --accent: #ffd93d;
+  --accent-ink: #4a3800;
+
+  /* Surfaces tint with the theme's ink, so panels stay visible on light
+     themes (dark tint on pale bg) and dark themes (pale tint on dark bg)
+     without hand-tuning every theme. */
+  --surface: color-mix(in srgb, var(--ink) 14%, transparent);
+  --surface-hover: color-mix(in srgb, var(--ink) 24%, transparent);
+  --surface-strong: color-mix(in srgb, var(--ink) 32%, transparent);
+  --surface-faint: color-mix(in srgb, var(--ink) 8%, transparent);
+  --hairline: color-mix(in srgb, var(--ink) 22%, transparent);
+
+  --font: "Baloo 2", "Comic Sans MS", "Chalkboard SE", "Trebuchet MS", "Segoe UI", system-ui,
+    sans-serif;
+  --radius: 22px;
+  --tile: 34px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font);
+  color: var(--ink);
+  background: radial-gradient(circle at 50% 0%, var(--bg-glow), var(--bg) 70%);
+  transition: background 0.4s ease, color 0.4s ease;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sprite-host {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+#app {
+  height: 100%;
+  display: flex;
+}
+
+.screen {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(10px, 2.4vh, 26px) clamp(12px, 3vw, 40px);
+  overflow-y: auto;
+}
+
+.sprite {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* ---------------- start screen ---------------- */
+
+.title-block {
+  text-align: center;
+}
+
+.game-title {
+  margin: 0.1em 0 0;
+  font-size: clamp(2.4rem, 7vw, 4.6rem);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: var(--accent);
+  text-shadow: 0 4px 0 rgba(0, 0, 0, 0.22), 0 10px 26px rgba(0, 0, 0, 0.28);
+}
+
+.game-title span {
+  color: var(--ink);
+}
+
+.tagline {
+  margin: 0.5em 0 0;
+  font-size: clamp(0.95rem, 2.2vw, 1.25rem);
+  opacity: 0.85;
+}
+
+.picker-title {
+  margin: clamp(10px, 2vh, 20px) 0 8px;
+  font-size: clamp(1.05rem, 2.6vw, 1.5rem);
+  opacity: 0.95;
+}
+
+.picker-title.big {
+  font-size: clamp(1.5rem, 4vw, 2.4rem);
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(8px, 1.6vw, 16px);
+  width: min(760px, 100%);
+}
+
+.theme-card {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 8px 12px;
+  border: 4px solid var(--hairline);
+  border-radius: var(--radius);
+  background: var(--surface);
+  transition: transform 0.16s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.theme-art {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.9 / 1;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.theme-card-player {
+  width: 56%;
+  max-width: 84px;
+}
+
+.theme-card-target {
+  position: absolute;
+  right: 8%;
+  bottom: 10%;
+  width: 26%;
+  max-width: 40px;
+}
+
+.theme-name {
+  font-size: clamp(0.95rem, 2vw, 1.15rem);
+  font-weight: 700;
+}
+
+.theme-blurb {
+  font-size: clamp(0.7rem, 1.6vw, 0.85rem);
+  opacity: 0.75;
+}
+
+.theme-card:hover,
+.theme-card:focus-visible {
+  transform: translateY(-4px) scale(1.03);
+  background: var(--surface-hover);
+  outline: none;
+}
+
+.theme-card.is-selected {
+  border-color: var(--accent);
+  background: var(--surface-strong);
+}
+
+/* ---------------- speed picker ---------------- */
+
+.speed-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(8px, 1.6vw, 16px);
+  width: min(520px, 100%);
+}
+
+.speed-btn {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 6px;
+  border: 4px solid var(--hairline);
+  border-radius: 18px;
+  background: var(--surface);
+  font-weight: 700;
+  font-size: clamp(0.85rem, 2vw, 1.05rem);
+  transition: transform 0.16s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.chevrons {
+  width: 44px;
+  height: 26px;
+  color: var(--accent);
+}
+
+.speed-btn:hover,
+.speed-btn:focus-visible {
+  transform: translateY(-3px);
+  background: var(--surface-hover);
+  outline: none;
+}
+
+.speed-btn.is-selected {
+  border-color: var(--accent);
+  background: var(--surface-strong);
+}
+
+/* ---------------- buttons ---------------- */
+
+.start-actions,
+.overlay-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: clamp(16px, 3vh, 28px);
+}
+
+.big-btn {
+  font: inherit;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: clamp(1.05rem, 2.6vw, 1.5rem);
+  padding: 0.55em 1.5em;
+  border: none;
+  border-radius: 999px;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+}
+
+.play-btn {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+}
+
+.ghost-btn {
+  background: var(--surface-hover);
+  color: var(--ink);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.18);
+}
+
+.big-btn:hover,
+.big-btn:focus-visible {
+  transform: translateY(-3px);
+  filter: brightness(1.06);
+  outline: none;
+  box-shadow: 0 9px 0 rgba(0, 0, 0, 0.25);
+}
+
+.big-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* Everything focusable gets a chunky ring so gamepad users can see where they are.
+   Uses --ink, not --accent, so the ring stays visible on accent-coloured buttons. */
+[data-focus]:focus-visible {
+  outline: 5px solid var(--ink);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 9px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* ---------------- pad status ---------------- */
+
+.pad-status {
+  margin-top: auto;
+  padding-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: clamp(0.8rem, 1.8vw, 0.98rem);
+  opacity: 0.7;
+}
+
+.pad-status.is-connected {
+  opacity: 1;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.pad-icon {
+  width: 26px;
+  height: 26px;
+  color: currentColor;
+}
+
+/* ---------------- level select ---------------- */
+
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: clamp(6px, 1.2vw, 12px);
+  width: min(720px, 100%);
+  margin-bottom: 18px;
+}
+
+.level-btn {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  aspect-ratio: 1.25 / 1;
+  padding: 4px;
+  border: 4px solid var(--hairline);
+  border-radius: 18px;
+  background: var(--surface);
+  transition: transform 0.14s ease, background 0.2s ease;
+}
+
+.level-num {
+  font-size: clamp(1.1rem, 3vw, 1.7rem);
+  font-weight: 800;
+}
+
+.level-name {
+  font-size: clamp(0.5rem, 1.2vw, 0.68rem);
+  opacity: 0.7;
+  text-align: center;
+  line-height: 1.15;
+}
+
+.level-btn.is-done {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.level-btn.is-locked {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.lock-icon {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 16px;
+  height: 16px;
+  color: currentColor;
+}
+
+.level-btn:not([disabled]):hover,
+.level-btn:focus-visible {
+  transform: translateY(-3px) scale(1.05);
+  outline: none;
+}
+
+/* ---------------- hud ---------------- */
+
+.game-screen {
+  padding: clamp(8px, 1.5vh, 16px) clamp(8px, 2vw, 24px);
+}
+
+.hud {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1.4vw, 14px);
+  margin-bottom: 10px;
+}
+
+.hud-chip {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 16px;
+  border-radius: 18px;
+  background: var(--surface);
+  line-height: 1.15;
+}
+
+.hud-chip.grow {
+  flex: 1;
+  align-items: flex-start;
+}
+
+.hud-label {
+  font-size: clamp(0.62rem, 1.4vw, 0.8rem);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+}
+
+.hud-value {
+  font-size: clamp(1.1rem, 3vw, 1.7rem);
+  font-weight: 800;
+}
+
+.hud-value small {
+  font-size: 0.55em;
+  opacity: 0.65;
+  margin-left: 2px;
+}
+
+.hud-remaining {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hud-target-icon {
+  width: clamp(20px, 3.4vw, 30px);
+  height: clamp(20px, 3.4vw, 30px);
+  display: block;
+}
+
+.hud-btns {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.icon-btn {
+  cursor: pointer;
+  width: clamp(38px, 6vw, 50px);
+  height: clamp(38px, 6vw, 50px);
+  padding: 9px;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--ink);
+  transition: transform 0.14s ease, background 0.2s ease;
+}
+
+.icon-btn:hover,
+.icon-btn:focus-visible {
+  transform: translateY(-2px) scale(1.06);
+  background: var(--surface-hover);
+  outline: none;
+}
+
+.icon-btn.is-off {
+  opacity: 0.55;
+}
+
+/* ---------------- board ---------------- */
+
+.board-wrap {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.board {
+  position: relative;
+  width: calc(var(--tile) * var(--cols));
+  height: calc(var(--tile) * var(--rows));
+  border-radius: 18px;
+  padding: 0;
+  background: var(--floor);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--tile));
+  grid-template-rows: repeat(var(--rows), var(--tile));
+}
+
+.tile.floor {
+  background: var(--floor);
+  box-shadow: inset 0 0 0 1px var(--floor-line);
+}
+
+.tile.wall {
+  background: var(--wall);
+  border-radius: 8px;
+  box-shadow: inset 0 3px 0 var(--wall-edge), inset 0 -3px 0 rgba(0, 0, 0, 0.18);
+}
+
+.actors {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.actor {
+  position: absolute;
+  width: var(--tile);
+  height: var(--tile);
+  top: 0;
+  left: 0;
+  transform: translate(calc(var(--x) * var(--tile)), calc(var(--y) * var(--tile)));
+  display: grid;
+  place-items: center;
+}
+
+.actor.player {
+  z-index: 3;
+  transition: transform var(--move-ms, 120ms) cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+.actor.player .sprite {
+  width: 92%;
+  height: 92%;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.35));
+}
+
+.actor.player.face-left .sprite {
+  transform: scaleX(-1);
+}
+
+.actor.target {
+  z-index: 2;
+}
+
+/* A soft accent halo so targets pop on both pale and dark floors. */
+.actor.target::before {
+  content: "";
+  position: absolute;
+  width: 74%;
+  height: 74%;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.22;
+  animation: halo 1.7s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes halo {
+  0%,
+  100% {
+    transform: scale(0.86);
+    opacity: 0.16;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.3;
+  }
+}
+
+.actor.target.eaten::before {
+  animation: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.actor.target .sprite {
+  width: 62%;
+  height: 62%;
+  animation-delay: var(--delay, 0s);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.actor.target.eaten .sprite {
+  animation: eat-pop 0.4s ease-out forwards;
+}
+
+.actor.pop {
+  z-index: 4;
+  font-weight: 800;
+  font-size: calc(var(--tile) * 0.55);
+  color: var(--accent);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  animation: score-float 0.8s ease-out forwards;
+}
+
+/* ---------------- sprite animations ---------------- */
+
+.chomp-mouth {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: chomp 0.42s ease-in-out infinite alternate;
+}
+
+.anim-float {
+  animation: float 1.7s ease-in-out infinite;
+}
+
+.anim-hop {
+  animation: hop 1.1s ease-in-out infinite;
+}
+
+.anim-sway {
+  animation: sway 2.2s ease-in-out infinite;
+}
+
+.anim-hover {
+  animation: hover 1.5s ease-in-out infinite;
+}
+
+.rocket-flame {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: flame 0.18s ease-in-out infinite alternate;
+}
+
+@keyframes chomp {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0.08);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(-7%);
+  }
+  50% {
+    transform: translateY(7%);
+  }
+}
+
+@keyframes hop {
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+  40% {
+    transform: translateY(-9%) scaleY(1.04);
+  }
+  70% {
+    transform: translateY(0) scaleY(0.96);
+  }
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+
+@keyframes hover {
+  0%,
+  100% {
+    transform: translateY(-5%) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(5%) rotate(2deg);
+  }
+}
+
+@keyframes flame {
+  from {
+    transform: scaleY(0.75) scaleX(0.9);
+  }
+  to {
+    transform: scaleY(1.15) scaleX(1.05);
+  }
+}
+
+@keyframes eat-pop {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(1.7) rotate(12deg);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(0.1) rotate(-10deg);
+    opacity: 0;
+  }
+}
+
+@keyframes score-float {
+  0% {
+    transform: translate(calc(var(--x) * var(--tile)), calc(var(--y) * var(--tile))) scale(0.6);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+    transform: translate(calc(var(--x) * var(--tile)), calc(var(--y) * var(--tile) - 8px))
+      scale(1.1);
+  }
+  100% {
+    transform: translate(calc(var(--x) * var(--tile)), calc(var(--y) * var(--tile) - 34px))
+      scale(1);
+    opacity: 0;
+  }
+}
+
+/* Bumping into a wall: a little nudge, never a punishment. */
+.bump-up {
+  animation: bump-up 0.18s ease-out;
+}
+.bump-down {
+  animation: bump-down 0.18s ease-out;
+}
+.bump-left {
+  animation: bump-left 0.18s ease-out;
+}
+.bump-right {
+  animation: bump-right 0.18s ease-out;
+}
+
+@keyframes bump-up {
+  50% {
+    transform: translate(calc(var(--x) * var(--tile)), calc(var(--y) * var(--tile) - 22%));
+  }
+}
+@keyframes bump-down {
+  50% {
+    transform: translate(calc(var(--x) * var(--tile)), calc(var(--y) * var(--tile) + 22%));
+  }
+}
+@keyframes bump-left {
+  50% {
+    transform: translate(calc(var(--x) * var(--tile) - 22%), calc(var(--y) * var(--tile)));
+  }
+}
+@keyframes bump-right {
+  50% {
+    transform: translate(calc(var(--x) * var(--tile) + 22%), calc(var(--y) * var(--tile)));
+  }
+}
+
+/* ---------------- touch d-pad ---------------- */
+
+/* Hidden by default; the game reveals it only on touch devices with no gamepad. */
+.touchpad {
+  display: none;
+}
+
+body.show-touchpad .touchpad {
+  display: block;
+  position: fixed;
+  left: 50%;
+  bottom: clamp(14px, 4vh, 40px);
+  transform: translateX(-50%);
+  width: min(56vw, 240px);
+  height: min(56vw, 240px);
+  z-index: 15;
+  touch-action: none;
+  user-select: none;
+}
+
+/* When the pad is on screen, keep the board clear of it. */
+body.show-touchpad .board-wrap {
+  padding-bottom: min(58vw, 250px);
+}
+
+body.show-touchpad .pad-status {
+  display: none;
+}
+
+.dpad-btn {
+  position: absolute;
+  width: 33.333%;
+  height: 33.333%;
+  border: none;
+  cursor: pointer;
+  background: var(--surface-hover);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  transition: background 0.12s ease, transform 0.08s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dpad-btn::before {
+  content: "";
+  width: 42%;
+  height: 42%;
+  background: currentColor;
+  opacity: 0.9;
+  /* a chunky triangle, rotated per direction */
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.dpad-up {
+  top: 0;
+  left: 33.333%;
+  border-radius: 22px 22px 6px 6px;
+}
+.dpad-down {
+  bottom: 0;
+  left: 33.333%;
+  border-radius: 6px 6px 22px 22px;
+}
+.dpad-left {
+  left: 0;
+  top: 33.333%;
+  border-radius: 22px 6px 6px 22px;
+}
+.dpad-right {
+  right: 0;
+  top: 33.333%;
+  border-radius: 6px 22px 22px 6px;
+}
+
+.dpad-down::before {
+  transform: rotate(180deg);
+}
+.dpad-left::before {
+  transform: rotate(-90deg);
+}
+.dpad-right::before {
+  transform: rotate(90deg);
+}
+
+.dpad-hub {
+  position: absolute;
+  left: 33.333%;
+  top: 33.333%;
+  width: 33.333%;
+  height: 33.333%;
+  background: var(--surface-faint);
+  pointer-events: none;
+}
+
+.dpad-btn.pressed {
+  background: var(--accent);
+  color: var(--accent-ink);
+  transform: scale(0.94);
+}
+
+/* ---------------- overlay + confetti ---------------- */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(10, 12, 40, 0.5);
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
+  backdrop-filter: blur(4px);
+  z-index: 20;
+  animation: fade-in 0.25s ease-out;
+}
+
+.overlay-card {
+  text-align: center;
+  padding: clamp(20px, 4vw, 40px) clamp(24px, 6vw, 60px);
+  border-radius: 32px;
+  background: linear-gradient(180deg, var(--bg-glow), var(--bg));
+  border: 5px solid var(--accent);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-width: min(560px, 92vw);
+}
+
+.overlay-title {
+  margin: 0;
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
+  color: var(--accent);
+}
+
+.overlay-sub {
+  margin: 0.5em 0 0;
+  opacity: 0.85;
+  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes pop-in {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+}
+
+.confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 30;
+}
+
+.confetti-bit {
+  position: absolute;
+  top: -20px;
+  left: var(--left);
+  width: 12px;
+  height: 16px;
+  border-radius: 3px;
+  animation: fall var(--dur, 2s) linear var(--delay, 0s) forwards;
+}
+
+@keyframes fall {
+  from {
+    transform: translate(0, -10vh) rotate(0deg);
+    opacity: 1;
+  }
+  to {
+    transform: translate(var(--drift, 0), 110vh) rotate(var(--spin, 360deg));
+    opacity: 0.9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .theme-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .level-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .level-name {
+    display: none;
+  }
+}

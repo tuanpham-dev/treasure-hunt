@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Treasure Hunt — a gamepad maze game</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 50 L95 27 A45 45 0 1 0 95 73 Z' fill='%23ffd93d'/%3E%3Ccircle cx='55' cy='27' r='6' fill='%234a3800'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="sprite-host" id="sprite-host" aria-hidden="true"></div>
+
+<main id="app">
+
+  <!-- ---------------- START ---------------- -->
+  <section class="screen start-screen" id="start-screen">
+    <header class="title-block">
+      <h1 class="game-title">Treasure <span>Hunt</span></h1>
+      <p class="tagline">Grab a gamepad and collect everything!</p>
+    </header>
+
+    <h2 class="picker-title">Pick your character</h2>
+    <div class="theme-grid" id="theme-grid" data-focus-cols="3"></div>
+
+    <h2 class="picker-title">How fast do you want to move?</h2>
+    <div class="speed-row" id="speed-row" data-focus-cols="3"></div>
+
+    <div class="start-actions" data-focus-cols="2">
+      <button class="big-btn play-btn" id="play-btn" data-focus data-focus-default type="button">
+        <span id="play-label">Play</span>
+      </button>
+      <button class="big-btn ghost-btn" id="levels-btn" data-focus type="button">All <span id="levels-btn-count">30</span> levels</button>
+    </div>
+
+    <p class="pad-status" id="start-pad-status"></p>
+  </section>
+
+  <!-- ---------------- LEVEL SELECT ---------------- -->
+  <section class="screen level-screen" id="level-screen" hidden>
+    <h2 class="picker-title big">Choose a level</h2>
+    <p class="tagline" id="level-progress-note"></p>
+    <div class="level-grid" id="level-grid" data-focus-cols="6"></div>
+    <button class="big-btn ghost-btn" id="level-back" data-focus type="button">Back</button>
+  </section>
+
+  <!-- ---------------- GAME ---------------- -->
+  <section class="screen game-screen" id="game-screen" hidden>
+    <header class="hud">
+      <div class="hud-chip">
+        <span class="hud-label">Level</span>
+        <span class="hud-value"><span id="hud-level">1</span><small>/<span id="hud-total">30</span></small></span>
+      </div>
+      <div class="hud-chip grow">
+        <span class="hud-label" id="hud-level-name">First Steps</span>
+        <span class="hud-value hud-remaining">
+          <span class="hud-target-icon" id="hud-target-icon"></span>
+          <span id="hud-remaining">0</span>
+          <small>left</small>
+        </span>
+      </div>
+      <div class="hud-btns">
+        <button class="icon-btn" id="btn-sound" type="button" title="Sound on/off" aria-label="Sound on/off"></button>
+        <button class="icon-btn" id="btn-restart" type="button" title="Start this level again" aria-label="Restart level"></button>
+        <button class="icon-btn" id="btn-home" type="button" title="Back to the start screen" aria-label="Home"></button>
+      </div>
+    </header>
+
+    <div class="board-wrap" id="board-wrap">
+      <div class="board" id="board">
+        <div class="tiles" id="tiles"></div>
+        <div class="actors" id="actors"></div>
+      </div>
+    </div>
+
+    <p class="pad-status" id="game-pad-status"></p>
+
+    <!-- On-screen D-pad: shown only on touch devices with no gamepad. -->
+    <div class="touchpad" id="touchpad" aria-hidden="true">
+      <button class="dpad-btn dpad-up" data-dir="up" type="button" aria-label="Move up"></button>
+      <button class="dpad-btn dpad-left" data-dir="left" type="button" aria-label="Move left"></button>
+      <button class="dpad-btn dpad-right" data-dir="right" type="button" aria-label="Move right"></button>
+      <button class="dpad-btn dpad-down" data-dir="down" type="button" aria-label="Move down"></button>
+      <span class="dpad-hub" aria-hidden="true"></span>
+    </div>
+  </section>
+
+  <!-- ---------------- OVERLAY ---------------- -->
+  <div class="overlay" id="overlay" hidden>
+    <div class="overlay-card" id="overlay-card"></div>
+  </div>
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+</main>
+
+<script src="js/sprites.js"></script>
+<script src="js/themes.js"></script>
+<script src="js/maze.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/input.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
