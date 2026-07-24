@@ -174,6 +174,75 @@ const Sprites = (function () {
     <circle cx="40" cy="42" r="5" fill="#fff6cf"/>
   </symbol>
 
+  <!-- ============ SQUID (points up; turns all 4 ways) ============ -->
+  <symbol id="sp-squid" viewBox="0 0 100 100">
+    <!-- side fins near the pointed top -->
+    <path d="M40,20 L25,23 L38,34 z" fill="#e05a8f"/>
+    <path d="M60,20 L75,23 L62,34 z" fill="#e05a8f"/>
+    <!-- mantle (teardrop body) -->
+    <path d="M50,9 C63,16 69,32 67,49 C66,61 59,67 50,67 C41,67 34,61 33,49 C31,32 37,16 50,9 Z"
+          fill="#ff7ea8" stroke="#e05a8f" stroke-width="3"/>
+    <!-- tentacles -->
+    <g stroke="#ff7ea8" stroke-width="5" fill="none" stroke-linecap="round">
+      <path d="M38,62 q-6,14 -9,28"/>
+      <path d="M45,65 q-3,15 -5,27"/>
+      <path d="M50,66 q0,16 0,28"/>
+      <path d="M55,65 q3,15 5,27"/>
+      <path d="M62,62 q6,14 9,28"/>
+    </g>
+    <!-- eyes -->
+    <circle cx="42" cy="46" r="8" fill="#fff"/>
+    <circle cx="58" cy="46" r="8" fill="#fff"/>
+    <circle cx="42.5" cy="47" r="4.2" fill="#2a2320"/>
+    <circle cx="58.5" cy="47" r="4.2" fill="#2a2320"/>
+    <circle cx="44" cy="45.5" r="1.5" fill="#fff"/>
+    <circle cx="60" cy="45.5" r="1.5" fill="#fff"/>
+  </symbol>
+
+  <symbol id="sp-bubble" viewBox="0 0 100 100">
+    <circle cx="26" cy="30" r="9" fill="#cdeeff" stroke="#8fd0ef" stroke-width="3"/>
+    <circle cx="74" cy="72" r="7" fill="#cdeeff" stroke="#8fd0ef" stroke-width="3"/>
+    <circle cx="52" cy="54" r="27" fill="#cdeeff" stroke="#8fd0ef" stroke-width="4"/>
+    <circle cx="43" cy="45" r="8" fill="#ffffff" opacity="0.85"/>
+  </symbol>
+
+  <!-- ============ OCTOPUS (flips left/right) ============ -->
+  <symbol id="sp-octopus" viewBox="0 0 100 100">
+    <!-- tentacles (behind the head) -->
+    <g fill="#b07de0" stroke="#8a5bc4" stroke-width="2.5" stroke-linejoin="round">
+      <path d="M26,56 q-11,9 -8,25 q6,3 9,-2 q-4,-13 5,-19 z"/>
+      <path d="M40,60 q-6,13 -9,25 q6,3 9,-2 q-2,-15 4,-21 z"/>
+      <path d="M60,60 q6,13 9,25 q-6,3 -9,-2 q2,-15 -4,-21 z"/>
+      <path d="M74,56 q11,9 8,25 q-6,3 -9,-2 q4,-13 -5,-19 z"/>
+      <path d="M50,62 q-3,14 -3,25 q5,2 8,-2 q-1,-15 2,-21 z"/>
+    </g>
+    <!-- head -->
+    <path d="M50,13 C71,13 82,30 82,47 C82,57 76,63 68,63 L32,63 C24,63 18,57 18,47 C18,30 29,13 50,13 Z"
+          fill="#b07de0" stroke="#8a5bc4" stroke-width="3"/>
+    <!-- eyes + smile -->
+    <circle cx="40" cy="40" r="8.5" fill="#fff"/>
+    <circle cx="60" cy="40" r="8.5" fill="#fff"/>
+    <circle cx="41" cy="41" r="4.4" fill="#2a2320"/>
+    <circle cx="61" cy="41" r="4.4" fill="#2a2320"/>
+    <circle cx="42.6" cy="39.5" r="1.6" fill="#fff"/>
+    <circle cx="62.6" cy="39.5" r="1.6" fill="#fff"/>
+    <path d="M42,51 q8,7 16,0" stroke="#8a5bc4" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </symbol>
+
+  <symbol id="sp-shell" viewBox="0 0 100 100">
+    <path d="M50,22 C24,22 16,62 22,74 q6,-6 9,0 q5,-7 9,-1 q5,-8 10,-1 q5,-7 9,1 q3,-6 9,0
+             C84,62 76,22 50,22 Z"
+          fill="#ffcfe1" stroke="#e79bb8" stroke-width="3" stroke-linejoin="round"/>
+    <g stroke="#e79bb8" stroke-width="2.6" fill="none" stroke-linecap="round">
+      <path d="M50,30 L50,72"/>
+      <path d="M50,30 L34,70"/>
+      <path d="M50,30 L66,70"/>
+      <path d="M50,30 L24,62"/>
+      <path d="M50,30 L76,62"/>
+    </g>
+    <circle cx="50" cy="25" r="5" fill="#ffb8d4"/>
+  </symbol>
+
   <!-- ============ UI ICONS ============ -->
   <symbol id="ic-sound-on" viewBox="0 0 100 100">
     <path d="M20,38 h16 L56,20 v60 L36,62 h-16 z" fill="currentColor"/>
