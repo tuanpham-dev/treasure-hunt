@@ -300,6 +300,84 @@ body {
   box-shadow: 0 0 0 9px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
+/* ---------------- help button + controls + coach ---------------- */
+
+.help-btn {
+  margin-top: 14px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--ink);
+  background: var(--surface);
+  border: 3px solid var(--hairline);
+  border-radius: 999px;
+  padding: 0.4em 1.2em;
+  font-size: clamp(0.9rem, 2vw, 1.05rem);
+  transition: transform 0.14s ease, background 0.2s ease;
+}
+
+.help-btn:hover,
+.help-btn:focus-visible {
+  transform: translateY(-2px);
+  background: var(--surface-hover);
+  outline: none;
+}
+
+.controls-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 16px auto 4px;
+  max-width: 340px;
+  text-align: left;
+}
+
+.ctrl-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 14px;
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.ctrl-row span {
+  opacity: 0.85;
+}
+
+.ctrl-row b {
+  color: var(--accent);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.coach {
+  position: absolute;
+  top: clamp(6px, 2vh, 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  pointer-events: none;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 800;
+  font-size: clamp(0.85rem, 2vw, 1.1rem);
+  padding: 0.55em 1.2em;
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+  animation: coach-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-width: 90%;
+  text-align: center;
+}
+
+@keyframes coach-pop {
+  from {
+    transform: translateX(-50%) translateY(-10px) scale(0.85);
+    opacity: 0;
+  }
+}
+
 /* ---------------- pad status ---------------- */
 
 .pad-status {

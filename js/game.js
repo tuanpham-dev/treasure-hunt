@@ -215,8 +215,10 @@
 
     updateHud();
     hideOverlay();
+    hideCoach();
     showScreen("game");
     renderer.resize(); // must run once the screen is visible, or the wrap measures 0
+    showCoach(); // one-time first-play hint
     document.activeElement && document.activeElement.blur();
   }
 
@@ -244,6 +246,7 @@
     const moveMs = Math.round(Themes.speedById(state.speedId).ms * 0.7);
     renderer.movePlayer(nx, ny, state.facing, moveMs);
     Sound.step();
+    hideCoach(); // player got the idea
 
     eatAt(nx, ny);
   }
@@ -324,6 +327,71 @@
 
   function hideOverlay() {
     $("overlay").hidden = true;
+  }
+
+  /* ---------------- onboarding: controls guide + coach hint ---------------- */
+
+  function controlsRows() {
+    const pad = Input.isPadConnected();
+    const move = pad ? "D-pad / Stick" : HAS_TOUCH ? "On-screen arrows" : "Arrow keys / WASD";
+    return [
+      ["Move", move],
+      ["Pick / Play", pad ? "A button" : HAS_TOUCH ? "Tap" : "Enter / Space"],
+      ["Back / Home", pad ? "B button" : HAS_TOUCH ? "Home button" : "Esc"],
+      ["Restart level", pad ? "Y button" : "Restart button"],
+      ["Sound on / off", pad ? "X button" : "Sound button"],
+    ];
+  }
+
+  function showControls(returnScreen) {
+    const rows = controlsRows()
+      .map(([a, b]) => `<div class="ctrl-row"><span>${a}</span><b>${b}</b></div>`)
+      .join("");
+    showOverlay(`
+      <h2 class="overlay-title">How to play</h2>
+      <p class="overlay-sub">Move your character to grab every treasure. No timer, no losing — just explore!</p>
+      <div class="controls-list">${rows}</div>
+      <div class="overlay-actions" data-focus-cols="1">
+        <button class="big-btn play-btn" id="ctrl-ok" data-focus type="button">Got it!</button>
+      </div>
+    `);
+    $("ctrl-ok").addEventListener("click", () => {
+      hideOverlay();
+      try {
+        localStorage.setItem("th-seen-controls", "1");
+      } catch (err) {
+        /* private mode — just won't remember */
+      }
+      state.screen = returnScreen || "start";
+      const scope = $(state.screen + "-screen");
+      const back =
+        scope &&
+        (scope.querySelector("[data-focus-default]:not([disabled])") ||
+          scope.querySelector("[data-focus]:not([disabled])"));
+      if (back) back.focus();
+    });
+  }
+
+  let coachTimer = null;
+  function showCoach() {
+    let seen = false;
+    try {
+      seen = !!localStorage.getItem("th-seen-tutorial");
+      if (!seen) localStorage.setItem("th-seen-tutorial", "1");
+    } catch (err) {
+      seen = true; // no storage → don't nag every level
+    }
+    if (seen) return;
+    const c = $("coach");
+    c.textContent = "Move to grab all the treasures!";
+    c.hidden = false;
+    clearTimeout(coachTimer);
+    coachTimer = setTimeout(hideCoach, 5000);
+  }
+
+  function hideCoach() {
+    clearTimeout(coachTimer);
+    $("coach").hidden = true;
   }
 
   function goHome() {
@@ -485,6 +553,7 @@
       showScreen("level");
     });
     $("level-back").addEventListener("click", () => showScreen("start"));
+    $("help-btn").addEventListener("click", () => showControls("start"));
     $("btn-home").addEventListener("click", goHome);
     $("btn-restart").addEventListener("click", () => startLevel(state.levelNumber));
     $("btn-sound").addEventListener("click", () => {
@@ -512,6 +581,15 @@
     window.addEventListener("resize", () => renderer.resize());
     updatePadStatus();
     showScreen("start");
+
+    // First-ever visit: show the controls guide once.
+    let seenControls = true;
+    try {
+      seenControls = !!localStorage.getItem("th-seen-controls");
+    } catch (err) {
+      seenControls = true;
+    }
+    if (!seenControls) showControls("start");
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
