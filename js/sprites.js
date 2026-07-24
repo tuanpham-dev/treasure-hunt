@@ -334,6 +334,111 @@ const Sprites = (function () {
     <rect x="48.5" y="53" width="4" height="7" rx="2" fill="#7a4a24"/>
   </symbol>
 
+  <!-- ============ SANTA ============ -->
+  <symbol id="sp-santa" viewBox="0 0 100 100">
+    <path d="M26,52 q2,34 24,36 q22,-2 24,-36 q-24,12 -48,0 z" fill="#f7fbff" stroke="#dbe4ef" stroke-width="2.5"/>
+    <circle cx="50" cy="46" r="23" fill="#ffd6b0"/>
+    <circle cx="36" cy="50" r="5" fill="#ff9e9e" opacity="0.65"/>
+    <circle cx="64" cy="50" r="5" fill="#ff9e9e" opacity="0.65"/>
+    <circle cx="43" cy="43" r="3" fill="#2a2320"/>
+    <circle cx="57" cy="43" r="3" fill="#2a2320"/>
+    <circle cx="50" cy="50" r="5" fill="#ffb894"/>
+    <path d="M38,55 q-9,1 -13,7 q11,3 25,-3 q14,6 25,3 q-4,-6 -13,-7 q-12,5 -24,0 z" fill="#f7fbff"/>
+    <path d="M73,33 Q71,12 52,11 Q30,10 18,22 Q12,29 18,33 Q27,35 33,29 Q44,18 57,21 Q69,24 70,33 Z" fill="#e14b4b"/>
+    <rect x="22" y="30" width="56" height="9" rx="4.5" fill="#f7fbff"/>
+    <circle cx="16" cy="25" r="7.5" fill="#f7fbff"/>
+  </symbol>
+
+  <symbol id="sp-gift" viewBox="0 0 100 100">
+    <rect x="24" y="44" width="52" height="40" rx="4" fill="#3fa85c" stroke="#2e7a44" stroke-width="3"/>
+    <rect x="20" y="36" width="60" height="14" rx="4" fill="#4cc06e" stroke="#2e7a44" stroke-width="3"/>
+    <rect x="45" y="36" width="10" height="48" fill="#ffcf3d"/>
+    <path d="M50,36 q-14,-14 -18,-4 q-2,8 18,4 z" fill="#ffcf3d" stroke="#e0a91f" stroke-width="2"/>
+    <path d="M50,36 q14,-14 18,-4 q2,8 -18,4 z" fill="#ffcf3d" stroke="#e0a91f" stroke-width="2"/>
+    <circle cx="50" cy="34" r="4" fill="#ffe07a"/>
+  </symbol>
+
+  <!-- ============ RACE CAR (side view; turns all 4 ways) ============ -->
+  <symbol id="sp-racecar" viewBox="0 0 100 100">
+    <path d="M8,40 h14 v6 h-14 z M10,40 h5 v24 h-5 z" fill="#b52020"/>
+    <path d="M12,66 L17,54 Q23,49 35,49 Q41,39 53,38 Q65,37 73,44 L83,50 Q93,52 93,60 L93,66 Z"
+          fill="#e8342e" stroke="#b52020" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M18,61 H88" stroke="#ffffff" stroke-width="3" opacity="0.85"/>
+    <path d="M39,49 Q45,40 54,40 Q63,40 68,45 L69,49 Z" fill="#cdeeff" stroke="#a9d4ea" stroke-width="2"/>
+    <circle cx="50" cy="46" r="4.6" fill="#fff"/><circle cx="51.5" cy="46.5" r="2.4" fill="#2a2320"/>
+    <circle cx="60" cy="46" r="4.6" fill="#fff"/><circle cx="61.5" cy="46.5" r="2.4" fill="#2a2320"/>
+    <circle cx="32" cy="57" r="7.5" fill="#fff"/>
+    <path d="M32,52 l1.6,3.8 l4.1,0.3 l-3.1,2.5 l1.1,4 l-3.7,-2.4 l-3.7,2.4 l1.1,-4 l-3.1,-2.5 l4.1,-0.3 z" fill="#ffcf3d"/>
+    <circle cx="89" cy="55" r="3" fill="#ffe58a"/>
+    <path d="M79,59 q5,3 9,-1" stroke="#8a1414" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <circle cx="30" cy="68" r="12" fill="#2a2320"/><circle cx="30" cy="68" r="5.5" fill="#cbd0d6"/>
+    <circle cx="72" cy="68" r="12" fill="#2a2320"/><circle cx="72" cy="68" r="5.5" fill="#cbd0d6"/>
+  </symbol>
+
+  <symbol id="sp-trophy" viewBox="0 0 100 100">
+    <path d="M32,26 h36 v10 a18,18 0 0 1 -36,0 z" fill="#ffcf3d" stroke="#d9a520" stroke-width="3"/>
+    <path d="M32,30 q-12,0 -12,10 q0,8 10,8" fill="none" stroke="#d9a520" stroke-width="4"/>
+    <path d="M68,30 q12,0 12,10 q0,8 -10,8" fill="none" stroke="#d9a520" stroke-width="4"/>
+    <rect x="46" y="52" width="8" height="12" fill="#e0b030"/>
+    <rect x="36" y="64" width="28" height="7" rx="2" fill="#d9a520"/>
+    <rect x="40" y="71" width="20" height="7" rx="2" fill="#c99518"/>
+    <path d="M50,31 l2.5,6 l6.5,0.4 l-5,4 l1.5,6.5 l-5.5,-3.6 l-5.5,3.6 l1.5,-6.5 l-5,-4 l6.5,-0.4 z" fill="#fff6cf"/>
+  </symbol>
+
+  <!-- ============ T-REX (side-profile running dino) ============ -->
+  <symbol id="sp-trex" viewBox="0 0 100 100">
+    <path d="M6,46 L28,54 L24,66 L12,62 Q6,56 6,46 Z" fill="#5aad3d" stroke="#4e9633" stroke-width="3" stroke-linejoin="round"/>
+    <rect x="30" y="72" width="10" height="17" rx="3.5" fill="#4e9633"/>
+    <ellipse cx="36" cy="90" rx="8" ry="2.8" fill="#3f7d29"/>
+    <path d="M22,58 Q22,74 38,76 L54,76 Q62,76 62,64 L62,52 Q62,44 50,44 L34,44 Q22,46 22,58 Z"
+          fill="#6cc24a" stroke="#4e9633" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M50,52 L50,34 Q50,24 62,24 L84,24 Q91,24 91,32 L91,41 Q91,44 87,44 L60,44 Q50,44 50,52 Z"
+          fill="#6cc24a" stroke="#4e9633" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M67,44 L91,44 L91,52 Q79,54 69,51 Z" fill="#8a3b3b"/>
+    <path d="M64,49 Q63,58 72,59 L84,59 Q88,59 87,53 L86,50 Q79,52 72,52 Q67,52 64,49 Z"
+          fill="#6cc24a" stroke="#4e9633" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M30,60 Q40,70 52,64 Q46,72 38,70 Q31,68 30,60 Z" fill="#cfe8a8"/>
+    <rect x="46" y="72" width="10" height="17" rx="3.5" fill="#6cc24a"/>
+    <ellipse cx="52" cy="90" rx="8" ry="2.8" fill="#3f7d29"/>
+    <path d="M56,54 q5,1 7,5" stroke="#4e9633" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path d="M74,44 l1.5,4 M80,44 l1.5,4 M86,44 l1.5,3.5" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+    <path d="M78,53 l1.5,-4 M84,53 l1.5,-3.5" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="80" cy="32" r="4.5" fill="#fff"/><circle cx="81.5" cy="32.5" r="2.3" fill="#2a2320"/>
+  </symbol>
+
+  <symbol id="sp-meat" viewBox="0 0 100 100">
+    <g transform="rotate(-18 46 46)">
+      <ellipse cx="42" cy="44" rx="25" ry="21" fill="#c85a3c" stroke="#a04528" stroke-width="3"/>
+      <path d="M30,34 q7,-5 15,-2" stroke="#e08a6a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    </g>
+    <rect x="52" y="56" width="30" height="10" rx="5" fill="#fff6e8" stroke="#d9c3a5" stroke-width="2.5" transform="rotate(38 66 61)"/>
+    <circle cx="82" cy="74" r="7" fill="#fff6e8" stroke="#d9c3a5" stroke-width="2.5"/>
+    <circle cx="88" cy="67" r="7" fill="#fff6e8" stroke="#d9c3a5" stroke-width="2.5"/>
+  </symbol>
+
+  <!-- ============ BABY ============ -->
+  <symbol id="sp-baby" viewBox="0 0 100 100">
+    <path d="M30,92 v-14 a20,18 0 0 1 40,0 v14 z" fill="#8fc8f0"/>
+    <path d="M30,84 h40" stroke="#ffffff" stroke-width="3.5"/>
+    <circle cx="50" cy="46" r="26" fill="#ffd9be"/>
+    <circle cx="34" cy="52" r="5" fill="#ff9e9e" opacity="0.65"/>
+    <circle cx="66" cy="52" r="5" fill="#ff9e9e" opacity="0.65"/>
+    <path d="M50,21 q-2,-9 5,-12 q2,5 -1,10 q4,-1 6,3 q-6,1 -10,-1 z" fill="#8a5a30"/>
+    <circle cx="41" cy="45" r="5.4" fill="#fff"/>
+    <circle cx="59" cy="45" r="5.4" fill="#fff"/>
+    <circle cx="42" cy="46" r="3" fill="#2a2320"/>
+    <circle cx="60" cy="46" r="3" fill="#2a2320"/>
+    <path d="M43,57 q7,6 14,0" stroke="#c86a4a" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  </symbol>
+
+  <symbol id="sp-bottle" viewBox="0 0 100 100">
+    <path d="M44,16 q6,-7 12,0 v6 h-12 z" fill="#ffcf9e" stroke="#e0a870" stroke-width="2"/>
+    <rect x="39" y="22" width="22" height="8" rx="2" fill="#ff8fb0"/>
+    <rect x="36" y="30" width="28" height="50" rx="10" fill="#eaf6ff" stroke="#bcd8ea" stroke-width="3"/>
+    <path d="M39,50 h22 v22 a7,7 0 0 1 -7,7 h-8 a7,7 0 0 1 -7,-7 z" fill="#ffffff"/>
+    <path d="M57,38 h5 M57,44 h5 M57,50 h5" stroke="#bcd8ea" stroke-width="2" stroke-linecap="round"/>
+  </symbol>
+
   <!-- ============ UI ICONS ============ -->
   <symbol id="ic-sound-on" viewBox="0 0 100 100">
     <path d="M20,38 h16 L56,20 v60 L36,62 h-16 z" fill="currentColor"/>
