@@ -26,9 +26,34 @@
     picked: 0,
     busy: false,
     facing: "right",
-    targetEls: new Map(),
-    playerEl: null,
+    renderMode: "2d",
+    targetSet: new Set(), // logical "x,y" of uncollected targets; rendering is the renderer's job
   };
+
+  // The active board renderer. Swapped for Renderer3D when render mode is "3d".
+  let renderer = Renderer2D;
+
+  function activeRenderer() {
+    return state.renderMode === "3d" ? Renderer3D : Renderer2D;
+  }
+
+  /* Make `renderer` match the chosen mode and mount it. If a 3D mount fails
+     (no WebGL), fall back to 2D and surface the note by the toggle. */
+  function ensureRenderer() {
+    const want = activeRenderer();
+    if (want !== renderer) {
+      renderer.unmount();
+      renderer = want;
+    }
+    const ok = renderer.mount($("board-wrap"));
+    if (ok === false && renderer === Renderer3D) {
+      renderer = Renderer2D;
+      state.renderMode = "2d";
+      save();
+      $("render-mode-note").hidden = false;
+      renderer.mount($("board-wrap"));
+    }
+  }
 
   /* ---------------- persistence ---------------- */
 
@@ -40,6 +65,7 @@
       if (saved.themeId) state.themeId = saved.themeId;
       if (saved.speedId) state.speedId = saved.speedId;
       if (typeof saved.muted === "boolean") state.muted = saved.muted;
+      if (saved.renderMode === "2d" || saved.renderMode === "3d") state.renderMode = saved.renderMode;
       if (saved.levelNumber) state.levelNumber = clampLevel(saved.levelNumber);
       if (saved.unlocked) state.unlocked = clampLevel(saved.unlocked);
     } catch (err) {
@@ -55,6 +81,7 @@
           themeId: state.themeId,
           speedId: state.speedId,
           muted: state.muted,
+          renderMode: state.renderMode,
           levelNumber: state.levelNumber,
           unlocked: state.unlocked,
         })
@@ -127,6 +154,15 @@
       if (btn) btn.focus();
     });
 
+    Themes.renderModeToggle($("render-mode-row"), state.renderMode, (id) => {
+      state.renderMode = id;
+      Sound.step();
+      save();
+      renderStart();
+      const btn = $("render-mode-row").querySelector(`[data-mode-id="${id}"]`);
+      if (btn) btn.focus();
+    });
+
     $("play-label").textContent =
       state.levelNumber > 1 ? `Play level ${state.levelNumber}` : "Play";
   }
@@ -169,72 +205,19 @@
     state.picked = 0;
     state.busy = false;
     state.facing = "right";
+    state.targetSet = new Set(state.level.targets.map((t) => t.x + "," + t.y));
     save();
-    buildBoard();
+
+    const theme = Themes.byId(state.themeId);
+    ensureRenderer();
+    renderer.applyTheme(theme);
+    renderer.buildLevel(state.level, theme);
+
     updateHud();
     hideOverlay();
     showScreen("game");
-    sizeBoard(); // must run once the screen is visible, or the wrap measures 0
+    renderer.resize(); // must run once the screen is visible, or the wrap measures 0
     document.activeElement && document.activeElement.blur();
-  }
-
-  function buildBoard() {
-    const level = state.level;
-    const theme = Themes.byId(state.themeId);
-    const tiles = $("tiles");
-    const actors = $("actors");
-
-    $("board").style.setProperty("--cols", level.tw);
-    $("board").style.setProperty("--rows", level.th);
-
-    let html = "";
-    for (let y = 0; y < level.th; y++) {
-      for (let x = 0; x < level.tw; x++) {
-        const wall = level.grid[y][x] === 1;
-        html += `<div class="tile ${wall ? "wall" : "floor"}"></div>`;
-      }
-    }
-    tiles.innerHTML = html;
-
-    actors.innerHTML = "";
-    state.targetEls.clear();
-
-    level.targets.forEach((t, i) => {
-      const el = document.createElement("div");
-      el.className = "actor target";
-      el.style.setProperty("--delay", (i % 6) * 0.12 + "s");
-      el.innerHTML = Sprites.svg(theme.target, "anim-float");
-      place(el, t.x, t.y);
-      actors.appendChild(el);
-      state.targetEls.set(t.x + "," + t.y, el);
-    });
-
-    const player = document.createElement("div");
-    player.className = "actor player";
-    player.innerHTML = Sprites.svg(theme.player, theme.playerClass || "");
-    place(player, state.player.x, state.player.y);
-    actors.appendChild(player);
-    state.playerEl = player;
-
-    sizeBoard();
-  }
-
-  function place(el, x, y) {
-    el.style.setProperty("--x", x);
-    el.style.setProperty("--y", y);
-  }
-
-  function sizeBoard() {
-    if (!state.level) return;
-    const wrap = $("board-wrap");
-    const availW = wrap.clientWidth - 12;
-    const availH = wrap.clientHeight - 12;
-    if (availW <= 0 || availH <= 0) return;
-    const tile = Math.max(
-      12,
-      Math.min(96, Math.floor(Math.min(availW / state.level.tw, availH / state.level.th)))
-    );
-    $("board").style.setProperty("--tile", tile + "px");
   }
 
   /* ---------------- movement ---------------- */
@@ -248,59 +231,37 @@
     const ny = state.player.y + step.dy;
     const grid = state.level.grid;
 
-    if (dir === "left" || dir === "right") {
-      state.facing = dir;
-      state.playerEl.classList.toggle("face-left", dir === "left");
-    }
+    if (dir === "left" || dir === "right") state.facing = dir;
 
     if (ny < 0 || nx < 0 || ny >= state.level.th || nx >= state.level.tw || grid[ny][nx] === 1) {
-      bump(dir);
+      renderer.bumpPlayer(dir);
+      Sound.bump();
       return;
     }
 
     state.player.x = nx;
     state.player.y = ny;
-    const speed = Themes.speedById(state.speedId).ms;
-    state.playerEl.style.setProperty("--move-ms", Math.round(speed * 0.7) + "ms");
-    place(state.playerEl, nx, ny);
+    const moveMs = Math.round(Themes.speedById(state.speedId).ms * 0.7);
+    renderer.movePlayer(nx, ny, state.facing, moveMs);
     Sound.step();
 
     eatAt(nx, ny);
   }
 
-  function bump(dir) {
-    state.playerEl.classList.remove("bump-up", "bump-down", "bump-left", "bump-right");
-    // restart the animation
-    void state.playerEl.offsetWidth;
-    state.playerEl.classList.add("bump-" + dir);
-    Sound.bump();
-  }
-
   function eatAt(x, y) {
     const key = x + "," + y;
-    const el = state.targetEls.get(key);
-    if (!el) return;
+    if (!state.targetSet.has(key)) return;
 
-    state.targetEls.delete(key);
-    el.classList.add("eaten");
-    setTimeout(() => el.remove(), 420);
+    state.targetSet.delete(key);
+    renderer.eatTarget(x, y);
 
     state.remaining--;
     state.picked++;
     Sound.pickup(state.picked - 1);
     updateHud();
-    popScore(x, y);
+    renderer.popScore(x, y);
 
     if (state.remaining <= 0) finishLevel();
-  }
-
-  function popScore(x, y) {
-    const el = document.createElement("div");
-    el.className = "actor pop";
-    el.textContent = "+1";
-    place(el, x, y);
-    $("actors").appendChild(el);
-    setTimeout(() => el.remove(), 800);
   }
 
   /* ---------------- level flow ---------------- */
@@ -368,6 +329,7 @@
   function goHome() {
     hideOverlay();
     state.busy = false;
+    renderer.unmount(); // stop the 3D loop / release the board while on the menu
     renderStart();
     showScreen("start");
   }
@@ -408,7 +370,7 @@
     if (document.body.classList.contains("show-touchpad") !== showTouch) {
       document.body.classList.toggle("show-touchpad", showTouch);
       if (!showTouch) releaseTouch();
-      sizeBoard(); // the pad reserves board space, so the tile size changes
+      renderer.resize(); // the pad reserves board space, so the tile size changes
     }
   }
 
@@ -543,7 +505,7 @@
       onPadChange: updatePadStatus,
     });
 
-    window.addEventListener("resize", sizeBoard);
+    window.addEventListener("resize", () => renderer.resize());
     updatePadStatus();
     showScreen("start");
   }

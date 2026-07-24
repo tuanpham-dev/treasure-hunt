@@ -2,8 +2,9 @@
    works when index.html is opened directly from disk (file://). */
 
 const Sprites = (function () {
-  const SHEET = `
-<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" focusable="false">
+  // Shared inner markup (defs + every symbol), reused by the injected sheet and
+  // by standalone() so a single <img> can resolve <use> for 3D textures.
+  const INNER = `
   <defs>
     <mask id="mask-chomp">
       <rect x="-10" y="-10" width="120" height="120" fill="#fff"/>
@@ -178,8 +179,12 @@ const Sprites = (function () {
     <rect x="20" y="44" width="20" height="6" rx="3" fill="#fff"/>
     <rect x="27" y="37" width="6" height="20" rx="3" fill="#fff"/>
     <circle cx="66" cy="44" r="5" fill="#fff"/><circle cx="78" cy="54" r="5" fill="#fff"/>
-  </symbol>
-</svg>`;
+  </symbol>`;
+
+  const SHEET =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" focusable="false">` +
+    INNER +
+    `</svg>`;
 
   function inject(hostId) {
     const host = document.getElementById(hostId || "sprite-host");
@@ -191,7 +196,20 @@ const Sprites = (function () {
     return `<svg class="sprite ${cls || ""}" viewBox="0 0 100 100" aria-hidden="true"><use href="#${id}"/></svg>`;
   }
 
-  return { inject, svg, SHEET };
+  /* A self-contained SVG for one symbol: all defs + symbols inlined plus a <use>,
+     so a single <img> (e.g. a 3D CanvasTexture source) resolves it with no sheet.
+     Includes xlink:href alongside href for the widest <img> raster support. */
+  function standalone(id, px) {
+    const s = px || 128;
+    return (
+      `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" ` +
+      `viewBox="0 0 100 100" width="${s}" height="${s}">` +
+      INNER +
+      `<use href="#${id}" xlink:href="#${id}"/></svg>`
+    );
+  }
+
+  return { inject, svg, standalone, SHEET };
 })();
 
 if (typeof module !== "undefined" && module.exports) module.exports = Sprites;

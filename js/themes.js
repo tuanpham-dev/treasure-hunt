@@ -194,7 +194,37 @@ const Themes = (function () {
     });
   }
 
-  return { THEMES, SPEEDS, byId, speedById, apply, renderThemeCards, renderSpeedButtons };
+  const RENDER_MODES = [
+    { id: "2d", name: "2D", blurb: "Flat & classic" },
+    { id: "3d", name: "3D", blurb: "Pop-up world" },
+  ];
+
+  function renderModeToggle(container, selectedId, onPick) {
+    container.innerHTML = RENDER_MODES.map(
+      (m) => `
+      <button class="speed-btn mode-btn ${m.id === selectedId ? "is-selected" : ""}"
+              data-focus data-mode-id="${m.id}" type="button">
+        <span class="mode-name">${m.name}</span>
+        <span class="theme-blurb">${m.blurb}</span>
+      </button>`
+    ).join("");
+
+    container.querySelectorAll(".mode-btn").forEach((btn) => {
+      btn.addEventListener("click", () => onPick(btn.dataset.modeId));
+    });
+  }
+
+  return {
+    THEMES,
+    SPEEDS,
+    RENDER_MODES,
+    byId,
+    speedById,
+    apply,
+    renderThemeCards,
+    renderSpeedButtons,
+    renderModeToggle,
+  };
 })();
 
 if (typeof module !== "undefined" && module.exports) module.exports = Themes;

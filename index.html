@@ -26,6 +26,10 @@
     <h2 class="picker-title">How fast do you want to move?</h2>
     <div class="speed-row" id="speed-row" data-focus-cols="3"></div>
 
+    <h2 class="picker-title">How do you want to see it?</h2>
+    <div class="mode-row" id="render-mode-row" data-focus-cols="2"></div>
+    <p class="mode-note" id="render-mode-note" hidden>This device can't show 3D — playing in 2D.</p>
+
     <div class="start-actions" data-focus-cols="2">
       <button class="big-btn play-btn" id="play-btn" data-focus data-focus-default type="button">
         <span id="play-label">Play</span>
@@ -93,11 +97,14 @@
 
 </main>
 
+<script src="js/vendor/three.min.js"></script>
 <script src="js/sprites.js"></script>
 <script src="js/themes.js"></script>
 <script src="js/maze.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/input.js"></script>
+<script src="js/render2d.js"></script>
+<script src="js/render3d.js"></script>
 <script src="js/game.js"></script>
 </body>
 </html>

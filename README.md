@@ -3,7 +3,8 @@
 A maze game for kids learning to use a gamepad. Steer your character through the
 maze, collect every treasure, and move on to the next of 30 levels.
 
-No build step, no dependencies, no internet. Double-click `index.html` and play.
+No build step, no internet. Double-click `index.html` and play. (One vendored
+library — Three.js, for the optional 3D mode — see "2D and 3D" below.)
 
 ## How to play
 
@@ -32,6 +33,24 @@ in a controller and it disappears automatically; unplug it and it returns.
   mute setting are all saved in the browser.
 - All artwork is hand-drawn SVG defined in `js/sprites.js` — no image files and
   no emoji, so it stays sharp at any size.
+- **2D or 3D**, switchable on the start screen (see below).
+
+## 2D and 3D
+
+A "How do you want to see it?" toggle on the start screen switches between the
+flat 2D board and a tilted-overhead 3D world; the choice is saved.
+
+Both modes share one set of game rules. All logic — movement, wall collision,
+level flow — lives in `js/game.js`, which draws through a small renderer
+interface implemented twice: `js/render2d.js` (DOM/CSS board) and
+`js/render3d.js` (Three.js scene). Because there is only one copy of the rules,
+the two modes can't drift apart. The same six themes are reused in 3D by
+turning each character's SVG into a billboarded sprite — no extra artwork.
+
+3D uses **Three.js, vendored locally** at `js/vendor/three.min.js` (the r149 UMD
+global build). It's the one dependency, checked into the repo on purpose so the
+game still runs from `file://` with no CDN and no build step. If a device has no
+WebGL, the game quietly falls back to 2D and shows a note by the toggle.
 
 ## Every level is guaranteed completable
 
@@ -59,12 +78,15 @@ always the same maze for every player on every device.
 ```
 index.html              page shell: start screen, level select, board, HUD
 css/style.css           all styling, theme variables and animations
-js/sprites.js           SVG symbol sheet (characters, treasures, UI icons)
-js/themes.js            theme + speed data, start-screen pickers
+js/sprites.js           SVG symbol sheet (+ standalone() for 3D textures)
+js/themes.js            theme + speed + render-mode data, start-screen pickers
 js/maze.js              PRNG, the 30-level table, generator, validator
-js/input.js             gamepad polling, keyboard, hold-to-repeat
+js/input.js             gamepad polling, keyboard, touch, hold-to-repeat
 js/audio.js             WebAudio sound effects (no audio files)
-js/game.js              board rendering, movement, level flow, saving
+js/game.js              game rules: movement, level flow, saving (renderer-agnostic)
+js/render2d.js          Renderer2D — the DOM/CSS board
+js/render3d.js          Renderer3D — the Three.js tilted-overhead board
+js/vendor/three.min.js  vendored Three.js r149 (UMD), only used by render3d.js
 tools/validate-levels.js  playability checker (Node)
 ```
 

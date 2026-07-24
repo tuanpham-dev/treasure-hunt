@@ -212,6 +212,27 @@ body {
   color: var(--accent);
 }
 
+.mode-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(8px, 1.6vw, 16px);
+  width: min(380px, 100%);
+}
+
+.mode-name {
+  font-size: clamp(1.15rem, 3vw, 1.6rem);
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.mode-note {
+  margin: 8px 0 0;
+  font-size: clamp(0.8rem, 1.8vw, 0.95rem);
+  color: var(--accent);
+  font-weight: 700;
+  opacity: 0.95;
+}
+
 .speed-btn:hover,
 .speed-btn:focus-visible {
   transform: translateY(-3px);
@@ -464,6 +485,43 @@ body {
   width: 100%;
   display: grid;
   place-items: center;
+  position: relative; /* anchors the 3D canvas and projected "+1" popups */
+}
+
+/* 3D board fills the board area (respecting the touch-pad padding) as a grid item. */
+.board3d {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+}
+
+/* Floating "+1" over the 3D scene, positioned by projecting the world point. */
+.pop3d {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-weight: 800;
+  font-size: clamp(1rem, 3.5vw, 1.8rem);
+  color: var(--accent);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  z-index: 5;
+  animation: pop3d-float 0.8s ease-out forwards;
+}
+
+@keyframes pop3d-float {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+  25% {
+    opacity: 1;
+    transform: translate(-50%, -90%) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -190%) scale(1);
+  }
 }
 
 .board {
