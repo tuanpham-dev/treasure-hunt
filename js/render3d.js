@@ -67,6 +67,15 @@ const Renderer3D = (function () {
     return svgTexture("chomp:" + deg + ":" + o, Sprites.chomperFrame(deg, 256, o || undefined));
   }
 
+  const FX_STEPS = 16; // frames per animation loop
+  const FX_LOOP = { flame: 260, sway: 1300, tail: 1500 }; // ms per loop, per fx type
+
+  function fxTexture(id, idx, orient) {
+    const o = orient || "";
+    const phase = (idx / FX_STEPS) * Math.PI * 2;
+    return svgTexture("fx:" + id + ":" + idx + ":" + o, Sprites.animFrame(id, phase, 256, o || undefined));
+  }
+
   /* SVG transform that faces the sprite art per faceTransform(). 3D bakes the
      orientation into the texture rather than scaling the billboard. */
   function orientStr(f) {
@@ -339,6 +348,16 @@ const Renderer3D = (function () {
       player.chomp = { degs: [40, 26, 10, 26], idx: -1 };
       sprite.material.map = chompTexture(player.chomp.degs[0], player.orient);
       sprite.material.needsUpdate = true;
+    } else {
+      // Themes with an animated part (rocket flame, squid/octopus tentacles,
+      // ghost skirt) frame-cycle a texture the same way Chomper does.
+      const fx = Sprites.fxType(theme.player);
+      if (fx) {
+        player.fx = { loop: FX_LOOP[fx] || 1000 };
+        for (let i = 0; i < FX_STEPS; i++) fxTexture(theme.player, i, player.orient); // pre-warm
+        sprite.material.map = fxTexture(theme.player, 0, player.orient);
+        sprite.material.needsUpdate = true;
+      }
     }
 
     frameBoard();
@@ -396,7 +415,8 @@ const Renderer3D = (function () {
     const f = Themes.faceTransform(facing, theme3);
     if (f) {
       player.orient = orientStr(f);
-      if (!player.chomp) {
+      if (!player.chomp && !player.fx) {
+        // chomp/fx themes re-render their own animated frame at the new facing
         player.sprite.material.map = spriteTexture(theme3.player, player.orient);
         player.sprite.material.needsUpdate = true;
       }
@@ -481,6 +501,16 @@ const Renderer3D = (function () {
         const tex = chompTexture(player.chomp.degs[i], player.orient);
         if (player.sprite.material.map !== tex) {
           player.chomp.idx = i;
+          player.sprite.material.map = tex;
+          player.sprite.material.needsUpdate = true;
+        }
+      }
+
+      // fx: cycle the animated-part frames (flame / tentacles / ghost tail)
+      if (player.fx) {
+        const idx = Math.floor(((now % player.fx.loop) / player.fx.loop) * FX_STEPS) % FX_STEPS;
+        const tex = fxTexture(theme3.player, idx, player.orient);
+        if (player.sprite.material.map !== tex) {
           player.sprite.material.map = tex;
           player.sprite.material.needsUpdate = true;
         }

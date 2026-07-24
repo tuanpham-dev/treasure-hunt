@@ -162,8 +162,10 @@ const Sprites = (function () {
 
   <!-- ============ ROCKET ============ -->
   <symbol id="sp-rocket" viewBox="0 0 100 100">
-    <path class="rocket-flame" d="M50,96 q-11,-12 -8,-22 h16 q3,10 -8,22 z" fill="#ff9f1c"/>
-    <path class="rocket-flame" d="M50,88 q-6,-7 -4,-14 h8 q2,7 -4,14 z" fill="#ffd93d"/>
+    <g class="fx" data-fx="flame">
+      <path class="rocket-flame" d="M50,96 q-11,-12 -8,-22 h16 q3,10 -8,22 z" fill="#ff9f1c"/>
+      <path class="rocket-flame" d="M50,88 q-6,-7 -4,-14 h8 q2,7 -4,14 z" fill="#ffd93d"/>
+    </g>
     <path d="M30,74 q-8,-6 -8,-18 l12,6 z" fill="#e2445c"/>
     <path d="M70,74 q8,-6 8,-18 l-12,6 z" fill="#e2445c"/>
     <path d="M50,6 q19,17 19,42 v22 h-38 v-22 q0,-25 19,-42 z" fill="#f4f7ff" stroke="#c2ccdf" stroke-width="3"/>
@@ -188,7 +190,7 @@ const Sprites = (function () {
     <path d="M50,9 C63,16 69,32 67,49 C66,61 59,67 50,67 C41,67 34,61 33,49 C31,32 37,16 50,9 Z"
           fill="#ff7ea8" stroke="#e05a8f" stroke-width="3"/>
     <!-- tentacles -->
-    <g stroke="#ff7ea8" stroke-width="5" fill="none" stroke-linecap="round">
+    <g class="fx" data-fx="sway" data-cx="50" data-cy="63" stroke="#ff7ea8" stroke-width="5" fill="none" stroke-linecap="round">
       <path d="M38,62 q-6,14 -9,28"/>
       <path d="M45,65 q-3,15 -5,27"/>
       <path d="M50,66 q0,16 0,28"/>
@@ -214,7 +216,7 @@ const Sprites = (function () {
   <!-- ============ OCTOPUS (flips left/right) ============ -->
   <symbol id="sp-octopus" viewBox="0 0 100 100">
     <!-- tentacles (behind the head) -->
-    <g fill="#b07de0" stroke="#8a5bc4" stroke-width="2.5" stroke-linejoin="round">
+    <g class="fx" data-fx="sway" data-cx="50" data-cy="60" fill="#b07de0" stroke="#8a5bc4" stroke-width="2.5" stroke-linejoin="round">
       <path d="M26,56 q-11,9 -8,25 q6,3 9,-2 q-4,-13 5,-19 z"/>
       <path d="M40,60 q-6,13 -9,25 q6,3 9,-2 q-2,-15 4,-21 z"/>
       <path d="M60,60 q6,13 9,25 q-6,3 -9,-2 q2,-15 -4,-21 z"/>
@@ -250,8 +252,10 @@ const Sprites = (function () {
 
   <!-- ============ GHOST ============ -->
   <symbol id="sp-ghost" viewBox="0 0 100 100">
-    <path d="M22,80 L22,52 A28,28 0 0 1 78,52 L78,80 q-7,8 -14,0 q-7,-8 -14,0 q-7,8 -14,0 q-7,-8 -14,0 Z"
-          fill="#f4f7ff" stroke="#c8d2e8" stroke-width="3"/>
+    <g class="fx" data-fx="tail">
+      <path d="M22,80 L22,52 A28,28 0 0 1 78,52 L78,80 q-7,8 -14,0 q-7,-8 -14,0 q-7,8 -14,0 q-7,-8 -14,0 Z"
+            fill="#f4f7ff" stroke="#c8d2e8" stroke-width="3"/>
+    </g>
     <ellipse cx="40" cy="50" rx="6" ry="8" fill="#3a3550"/>
     <ellipse cx="60" cy="50" rx="6" ry="8" fill="#3a3550"/>
     <ellipse cx="50" cy="66" rx="6" ry="7" fill="#3a3550"/>
@@ -887,7 +891,61 @@ const Sprites = (function () {
     );
   }
 
-  return { inject, svg, standalone, chomperFrame, SHEET };
+  /* The transform to apply to an ".fx" group at a given loop phase (radians).
+     Each animation moves only its part, pivoting so the rest of the body holds
+     still: a flame flickers taller/shorter, tentacles sway, a ghost's skirt
+     waggles side to side. */
+  function fxTransform(type, cx, cy, phase) {
+    if (type === "flame") {
+      const k = 0.7 + 0.4 * (0.5 + 0.5 * Math.sin(phase)); // vertical flicker
+      const sx = 1 + 0.16 * Math.sin(phase * 1.9 + 1); // slight width wobble
+      return `translate(50 74) scale(${sx.toFixed(3)} ${k.toFixed(3)}) translate(-50 -74)`;
+    }
+    if (type === "sway") {
+      return `rotate(${(8 * Math.sin(phase)).toFixed(2)} ${cx} ${cy})`;
+    }
+    if (type === "tail") {
+      // skew grows with distance below the pivot, so the bottom edge waggles
+      return `translate(0 30) skewX(${(7 * Math.sin(phase)).toFixed(2)}) translate(0 -30)`;
+    }
+    return "";
+  }
+
+  /* One animation frame of a sprite: the same art as standalone(), but with its
+     ".fx" part transformed for the given phase. The 3D renderer cycles these as
+     textures (a billboard can't run CSS/SMIL), exactly like chomperFrame. */
+  function animFrame(id, phase, px, orient) {
+    const sym = typeof document !== "undefined" && document.getElementById(id);
+    if (!sym) return standalone(id, px, orient);
+    const clone = sym.cloneNode(true);
+    clone.querySelectorAll(".fx").forEach((g) => {
+      const t = fxTransform(
+        g.getAttribute("data-fx"),
+        g.getAttribute("data-cx") || 50,
+        g.getAttribute("data-cy") || 50,
+        phase
+      );
+      g.setAttribute("transform", t);
+    });
+    const s = px || 128;
+    const inner = clone.innerHTML;
+    const body = orient ? `<g transform="${orient}">${inner}</g>` : inner;
+    return (
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="${s}" height="${s}">` +
+      body +
+      `</svg>`
+    );
+  }
+
+  /* The animation type of a sprite's ".fx" part, or null if it has none. */
+  function fxType(id) {
+    const sym = typeof document !== "undefined" && document.getElementById(id);
+    if (!sym) return null;
+    const g = sym.querySelector(".fx");
+    return g ? g.getAttribute("data-fx") : null;
+  }
+
+  return { inject, svg, standalone, chomperFrame, animFrame, fxType, SHEET };
 })();
 
 if (typeof module !== "undefined" && module.exports) module.exports = Sprites;
