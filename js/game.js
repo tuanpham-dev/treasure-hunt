@@ -255,23 +255,48 @@
       return;
     }
 
-    state.player.x = nx;
-    state.player.y = ny;
-    const moveMs = Math.round(Themes.speedById(state.speedId).ms * 0.7);
-    renderer.movePlayer(nx, ny, state.facing, moveMs, teleport);
+    // ice: landing on an ice tile makes you slide the same direction until you
+    // hit a wall/locked door or slide off the ice onto a normal tile
+    let fx = nx;
+    let fy = ny;
+    if (!teleport && grid[fy][fx] === 3) {
+      while (true) {
+        const ax = fx + step.dx;
+        const ay = fy + step.dy;
+        if (ay < 0 || ax < 0 || ay >= state.level.th || ax >= state.level.tw) break;
+        const v = grid[ay][ax];
+        if (v === 1 || (v === 2 && !state.hasKey)) break;
+        fx = ax;
+        fy = ay;
+        if (v !== 3) break; // slid off the ice — stop here
+      }
+    }
+
+    const slideDist = Math.abs(fx - nx) + Math.abs(fy - ny) + 1;
+    state.player.x = fx;
+    state.player.y = fy;
+    const base = Math.round(Themes.speedById(state.speedId).ms * 0.7);
+    const moveMs = teleport ? base : Math.round(base * (0.5 + 0.4 * Math.min(slideDist, 6)));
+    renderer.movePlayer(fx, fy, state.facing, moveMs, teleport);
     if (teleport) Sound.pickup(1);
     else Sound.step();
     hideCoach(); // player got the idea
 
-    // grab the key → open the door
-    const k = state.level.key;
-    if (k && !state.hasKey && nx === k.x && ny === k.y) {
-      state.hasKey = true;
-      renderer.openDoor();
-      Sound.levelClear();
+    // collect the key and any treasures along the traveled path
+    let cx = nx;
+    let cy = ny;
+    while (true) {
+      const k = state.level.key;
+      if (k && !state.hasKey && cx === k.x && cy === k.y) {
+        state.hasKey = true;
+        renderer.openDoor();
+        Sound.levelClear();
+      }
+      eatAt(cx, cy);
+      if (cx === fx && cy === fy) break;
+      cx += step.dx;
+      cy += step.dy;
     }
-
-    eatAt(nx, ny);
   }
 
   function eatAt(x, y) {

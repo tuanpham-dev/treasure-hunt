@@ -624,6 +624,25 @@ body {
   box-shadow: inset 0 0 0 1px var(--floor-line);
 }
 
+/* Ice: shiny pale-blue floor you slide across until you hit something. */
+.tile.ice {
+  position: relative;
+  background: linear-gradient(135deg, #dff4ff 0%, #b8e6ff 55%, #cfefff 100%);
+  box-shadow: inset 0 0 0 1px #a0d8f5, inset 0 2px 6px rgba(255, 255, 255, 0.7);
+}
+
+.tile.ice::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  top: 20%;
+  width: 40%;
+  height: 14%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.75);
+  transform: rotate(-30deg);
+}
+
 .tile.wall {
   background: var(--wall);
   border-radius: 8px;

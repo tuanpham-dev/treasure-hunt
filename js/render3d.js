@@ -222,6 +222,30 @@ const Renderer3D = (function () {
       doorMesh.add(lock);
     }
 
+    // Ice: pale-blue plates laid on the floor
+    const iceCells = [];
+    for (let y = 0; y < level.th; y++) {
+      for (let x = 0; x < level.tw; x++) {
+        if (level.grid[y][x] === 3) iceCells.push([x, y]);
+      }
+    }
+    if (iceCells.length) {
+      const iceMesh = new THREE.InstancedMesh(
+        new THREE.BoxGeometry(1, 0.06, 1),
+        new THREE.MeshLambertMaterial({ color: col("#c2ecff") }),
+        iceCells.length
+      );
+      iceMesh.receiveShadow = true;
+      const im = new THREE.Matrix4();
+      iceCells.forEach(([x, y], i) => {
+        const w = cellToWorld(x, y);
+        im.makeTranslation(w.x, 0.03, w.z);
+        iceMesh.setMatrixAt(i, im);
+      });
+      iceMesh.instanceMatrix.needsUpdate = true;
+      boardGroup.add(iceMesh);
+    }
+
     // Targets: billboarded sprite + a soft accent halo disc on the floor
     const haloMat = new THREE.MeshBasicMaterial({
       color: col(colors.accent),

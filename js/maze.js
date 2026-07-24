@@ -37,7 +37,7 @@ const MazeKit = (function () {
     { cols: 7, rows: 5, targets: 6, braid: 0.6, name: "Crossroads" },
     { cols: 7, rows: 5, targets: 7, braid: 0.55, name: "Hide and Seek" },
     { cols: 7, rows: 6, targets: 7, braid: 0.5, name: "Winding Way" },
-    { cols: 8, rows: 6, targets: 8, braid: 0.5, name: "The Long Hall" },
+    { cols: 8, rows: 6, targets: 8, braid: 0.5, ice: 1, name: "The Long Hall" },
     { cols: 8, rows: 6, targets: 8, braid: 0.45, tunnels: 1, name: "Twist" },
     { cols: 8, rows: 6, targets: 9, braid: 0.4, name: "Nine Lives" },
     { cols: 9, rows: 6, targets: 9, braid: 0.4, name: "Side Streets" },
@@ -45,13 +45,13 @@ const MazeKit = (function () {
     { cols: 9, rows: 7, targets: 10, braid: 0.32, name: "Corner Pockets" },
     { cols: 10, rows: 7, targets: 11, braid: 0.3, name: "The Maze Grows" },
     { cols: 10, rows: 7, targets: 11, braid: 0.28, tunnels: 1, name: "Dead End Alley" },
-    { cols: 10, rows: 8, targets: 12, braid: 0.25, name: "Twelve Trail" },
+    { cols: 10, rows: 8, targets: 12, braid: 0.25, ice: 1, name: "Twelve Trail" },
     { cols: 11, rows: 8, targets: 12, braid: 0.22, door: true, name: "Deep Woods" },
     { cols: 11, rows: 8, targets: 13, braid: 0.2, name: "Hidden Nooks" },
     { cols: 11, rows: 8, targets: 13, braid: 0.18, door: true, name: "The Spiral" },
     { cols: 12, rows: 8, targets: 14, braid: 0.15, name: "Far and Wide" },
     { cols: 12, rows: 9, targets: 14, braid: 0.12, tunnels: 2, name: "Lost and Found" },
-    { cols: 12, rows: 9, targets: 15, braid: 0.1, name: "The Labyrinth" },
+    { cols: 12, rows: 9, targets: 15, braid: 0.1, ice: 2, name: "The Labyrinth" },
     { cols: 12, rows: 9, targets: 15, braid: 0.08, door: true, name: "Every Corner" },
     { cols: 12, rows: 9, targets: 16, braid: 0.05, name: "Almost There" },
     { cols: 12, rows: 9, targets: 18, braid: 0.02, door: true, name: "Grand Treasure Hunt" },
@@ -59,21 +59,21 @@ const MazeKit = (function () {
     { cols: 13, rows: 10, targets: 19, braid: 0.15, name: "The Warren" },
     { cols: 14, rows: 10, targets: 20, braid: 0.12, tunnels: 2, name: "Twist and Turn" },
     { cols: 14, rows: 10, targets: 20, braid: 0.1, name: "Maze Master" },
-    { cols: 14, rows: 11, targets: 21, braid: 0.08, name: "Deep Dive" },
+    { cols: 14, rows: 11, targets: 21, braid: 0.08, ice: 2, name: "Deep Dive" },
     { cols: 15, rows: 11, targets: 22, braid: 0.15, name: "The Gauntlet" },
     { cols: 15, rows: 11, targets: 22, braid: 0.1, door: true, name: "Tangle" },
     { cols: 15, rows: 11, targets: 23, braid: 0.06, name: "Far Reaches" },
     { cols: 16, rows: 11, targets: 24, braid: 0.1, name: "The Sprawl" },
     { cols: 16, rows: 11, targets: 24, braid: 0.05, tunnels: 2, name: "Treasure Trove" },
     { cols: 16, rows: 12, targets: 25, braid: 0.12, name: "The Puzzle Box" },
-    { cols: 16, rows: 12, targets: 25, braid: 0.08, name: "Winding Roads" },
+    { cols: 16, rows: 12, targets: 25, braid: 0.08, ice: 2, name: "Winding Roads" },
     { cols: 17, rows: 12, targets: 26, braid: 0.1, name: "Hidden Depths" },
     { cols: 17, rows: 12, targets: 26, braid: 0.05, name: "The Big Maze" },
     { cols: 17, rows: 12, targets: 27, braid: 0.04, door: true, name: "Scavenger Hunt" },
     { cols: 18, rows: 12, targets: 28, braid: 0.08, name: "The Labyrinth II" },
     { cols: 18, rows: 12, targets: 28, braid: 0.04, tunnels: 3, name: "Every Nook" },
     { cols: 18, rows: 13, targets: 30, braid: 0.06, name: "The Long Haul" },
-    { cols: 18, rows: 13, targets: 30, braid: 0.03, name: "Almost Endless" },
+    { cols: 18, rows: 13, targets: 30, braid: 0.03, ice: 3, name: "Almost Endless" },
     { cols: 18, rows: 13, targets: 32, braid: 0.0, tunnels: 3, name: "Grand Finale" },
   ];
 
@@ -153,7 +153,8 @@ const MazeKit = (function () {
         const nx = cur.x + dx;
         const ny = cur.y + dy;
         if (nx < 0 || ny < 0 || nx >= tw || ny >= th) continue;
-        if (grid[ny][nx] !== 0 || dist[ny][nx] !== -1) continue;
+        // 1 = wall, 2 = closed door (both block); 0 = floor, 3 = ice (both walkable)
+        if (grid[ny][nx] === 1 || grid[ny][nx] === 2 || dist[ny][nx] !== -1) continue;
         dist[ny][nx] = dist[cur.y][cur.x] + 1;
         queue.push({ x: nx, y: ny });
       }
@@ -250,6 +251,48 @@ const MazeKit = (function () {
     return cands[0] || null;
   }
 
+  /* Ice patches: flood a few small pools of floor into ice (tile 3). Ice stays
+     walkable (never blocks), so solvability is unchanged — it only makes the
+     player slide. Avoids the start, key, and door tiles. */
+  function addIce(grid, tw, th, count, rng, avoid) {
+    const cells = [];
+    for (let y = 1; y < th - 1; y += 2)
+      for (let x = 1; x < tw - 1; x += 2)
+        if (grid[y][x] === 0 && !avoid.has(x + "," + y)) cells.push({ x, y });
+    for (let i = cells.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      const t = cells[i];
+      cells[i] = cells[j];
+      cells[j] = t;
+    }
+    let patches = 0;
+    for (const c of cells) {
+      if (patches >= count) break;
+      if (grid[c.y][c.x] !== 0) continue; // already iced by a neighbour patch
+      const q = [c];
+      const seen = new Set([c.x + "," + c.y]);
+      const patch = [];
+      while (q.length && patch.length < 9) {
+        const cur = q.shift();
+        patch.push(cur);
+        for (const [dx, dy] of DIRS) {
+          const nx = cur.x + dx;
+          const ny = cur.y + dy;
+          if (nx < 1 || ny < 1 || nx >= tw - 1 || ny >= th - 1) continue;
+          if (grid[ny][nx] !== 0) continue;
+          const k = nx + "," + ny;
+          if (seen.has(k) || avoid.has(k)) continue;
+          seen.add(k);
+          q.push({ x: nx, y: ny });
+        }
+      }
+      if (patch.length >= 3) {
+        for (const p of patch) grid[p.y][p.x] = 3;
+        patches++;
+      }
+    }
+  }
+
   /** Every target must sit on a floor tile the player can actually walk to. */
   function validateLevel(level) {
     const errors = [];
@@ -340,6 +383,14 @@ const MazeKit = (function () {
         if (key) door = found.door;
         else grid[found.door.y][found.door.x] = 0; // no key spot — abandon the door
       }
+    }
+
+    // Optional ice patches (tile 3). Keep them off the start, key, and door.
+    if (cfg.ice) {
+      const avoid = new Set([start.x + "," + start.y]);
+      if (key) avoid.add(key.x + "," + key.y);
+      if (door) avoid.add(door.x + "," + door.y);
+      addIce(grid, tw, th, cfg.ice, rng, avoid);
     }
 
     const level = {

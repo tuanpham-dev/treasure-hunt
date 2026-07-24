@@ -46,7 +46,7 @@ const Renderer2D = (function () {
     for (let y = 0; y < level.th; y++) {
       for (let x = 0; x < level.tw; x++) {
         const v = level.grid[y][x];
-        const cls = v === 1 ? "wall" : v === 2 ? "door" : "floor";
+        const cls = v === 1 ? "wall" : v === 2 ? "door" : v === 3 ? "ice" : "floor";
         html += `<div class="tile ${cls}"></div>`;
       }
     }
