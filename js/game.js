@@ -223,6 +223,34 @@
     document.activeElement && document.activeElement.blur();
   }
 
+  /* A snapshot of the level as it stands right now: player where they actually
+     are, only the treasures still uncollected, and the key gone once grabbed.
+     Feeding this to buildLevel re-draws the board mid-play without rewinding. */
+  function currentBoardLevel() {
+    const lvl = state.level;
+    const remaining = lvl.targets.filter((t) => state.targetSet.has(t.x + "," + t.y));
+    return Object.assign({}, lvl, {
+      start: { x: state.player.x, y: state.player.y },
+      targets: remaining,
+      key: state.hasKey ? null : lvl.key,
+    });
+  }
+
+  /* Re-draw the current level live under whatever theme / render mode is now
+     selected, preserving progress. Used by the in-game Look menu so the player
+     can switch character or flip 2D/3D without losing the level. */
+  function rebuildBoard() {
+    if (!state.level) return;
+    const theme = Themes.byId(state.themeId);
+    ensureRenderer(); // swaps + mounts the 2D/3D renderer, with 3D→2D fallback
+    renderer.applyTheme(theme);
+    renderer.buildLevel(currentBoardLevel(), theme);
+    if (state.hasKey) renderer.openDoor();
+    renderer.movePlayer(state.player.x, state.player.y, state.facing, 0, true); // face the same way
+    renderer.resize();
+    updateHud();
+  }
+
   /* ---------------- movement ---------------- */
 
   function tryMove(dir) {
@@ -380,6 +408,61 @@
     $("overlay").hidden = true;
   }
 
+  /* ---------------- in-game Look menu (change character / 2D-3D live) ---------------- */
+
+  function showLook() {
+    showOverlay(`
+      <h2 class="overlay-title">Change your look</h2>
+      <div class="look-scroll">
+        <h3 class="picker-title">Pick your character</h3>
+        <div class="theme-grid" id="look-theme-grid" data-focus-cols="3"></div>
+        <h3 class="picker-title">See it in</h3>
+        <div class="mode-row" id="look-mode-row" data-focus-cols="2"></div>
+      </div>
+      <div class="overlay-actions" data-focus-cols="1">
+        <button class="big-btn play-btn" id="look-done" data-focus data-focus-default type="button">Resume</button>
+      </div>
+    `);
+    $("overlay-card").classList.add("look-card");
+    renderLookControls();
+    $("look-done").addEventListener("click", closeLook);
+    // Land on the current character so it's clear where you are.
+    const current = $("look-theme-grid").querySelector(`[data-theme-id="${state.themeId}"]`);
+    if (current) current.focus();
+  }
+
+  function renderLookControls() {
+    Themes.renderThemeCards($("look-theme-grid"), state.themeId, (id) => {
+      state.themeId = id;
+      Themes.apply(Themes.byId(id));
+      Sound.pickup(2);
+      save();
+      rebuildBoard(); // live: new character drops into the maze in place
+      renderLookControls();
+      const card = $("look-theme-grid").querySelector(`[data-theme-id="${id}"]`);
+      if (card) card.focus();
+    });
+
+    Themes.renderModeToggle($("look-mode-row"), state.renderMode, (id) => {
+      if (id !== state.renderMode) {
+        state.renderMode = id;
+        Sound.step();
+        save();
+        rebuildBoard(); // ensureRenderer may fall back to 2D if 3D is unavailable
+      }
+      renderLookControls(); // reflect the mode actually in effect after any fallback
+      const btn = $("look-mode-row").querySelector(`[data-mode-id="${state.renderMode}"]`);
+      if (btn) btn.focus();
+    });
+  }
+
+  function closeLook() {
+    hideOverlay();
+    $("overlay-card").classList.remove("look-card");
+    state.screen = "game";
+    document.activeElement && document.activeElement.blur(); // hand control back to movement
+  }
+
   /* ---------------- onboarding: controls guide + coach hint ---------------- */
 
   function controlsRows() {
@@ -391,6 +474,7 @@
       ["Back / Home", pad ? "B button" : HAS_TOUCH ? "Home button" : "Esc"],
       ["Restart level", pad ? "Y button" : "Restart button"],
       ["Sound on / off", pad ? "X button" : "Sound button"],
+      ["Change look", pad ? "RB button" : HAS_TOUCH ? "Look button" : "C key"],
     ];
   }
 
@@ -461,6 +545,14 @@
     $("hud-level-name").textContent = state.level ? state.level.name : "";
     $("hud-remaining").textContent = state.remaining;
     $("hud-target-icon").innerHTML = Sprites.svg(theme.target, "");
+    updateLookButton();
+  }
+
+  // The Look button wears the current character, so it doubles as a reminder of
+  // who you are and a way in to swap.
+  function updateLookButton() {
+    const el = $("btn-look");
+    if (el) el.innerHTML = Sprites.svg(Themes.byId(state.themeId).player, "look-icon");
   }
 
   function updateSoundButton() {
@@ -471,6 +563,7 @@
   function renderHudIcons() {
     $("btn-restart").innerHTML = Sprites.svg("ic-restart", "");
     $("btn-home").innerHTML = Sprites.svg("ic-home", "");
+    updateLookButton();
   }
 
   function updatePadStatus() {
@@ -579,8 +672,17 @@
   }
 
   function onBack() {
+    if (state.screen === "overlay") {
+      if ($("look-done")) closeLook(); // Look menu open — back just resumes play
+      return;
+    }
     if (state.screen === "game") goHome();
     else if (state.screen === "level") showScreen("start");
+  }
+
+  function onLook() {
+    if (state.screen === "game") showLook();
+    else if (state.screen === "overlay" && $("look-done")) closeLook(); // toggle
   }
 
   function init() {
@@ -606,6 +708,7 @@
     $("level-back").addEventListener("click", () => showScreen("start"));
     $("help-btn").addEventListener("click", () => showControls("start"));
     $("btn-home").addEventListener("click", goHome);
+    $("btn-look").addEventListener("click", onLook);
     $("btn-restart").addEventListener("click", () => startLevel(state.levelNumber));
     $("btn-sound").addEventListener("click", () => {
       state.muted = !state.muted;
@@ -627,6 +730,7 @@
       onRestart: () => {
         if (state.screen === "game") startLevel(state.levelNumber); // Y — restart the level
       },
+      onLook: onLook, // RB / C — change character or 2D-3D mid-level
     });
 
     window.addEventListener("resize", () => renderer.resize());

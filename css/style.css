@@ -1099,6 +1099,35 @@ body.show-touchpad .pad-status {
   color: var(--accent);
 }
 
+/* The in-game Look menu reuses the start-screen pickers, so it needs a wider
+   card and its own scroll area for the full character grid. */
+.overlay-card.look-card {
+  max-width: min(820px, 94vw);
+  padding: clamp(16px, 3vw, 28px) clamp(16px, 3vw, 30px);
+}
+
+.look-scroll {
+  max-height: 56vh;
+  overflow-y: auto;
+  margin: 6px -4px;
+  padding: 0 4px;
+}
+
+.look-scroll .picker-title {
+  margin-top: 12px;
+}
+
+.look-scroll .theme-grid,
+.look-scroll .mode-row {
+  margin: 0 auto;
+}
+
+.look-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .overlay-sub {
   margin: 0.5em 0 0;
   opacity: 0.85;
