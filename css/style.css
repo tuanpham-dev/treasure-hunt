@@ -624,6 +624,23 @@ body {
   box-shadow: inset 0 0 0 1px var(--floor-line);
 }
 
+/* Boost pad: a bright accent tile that scoots you an extra step forward. */
+.tile.boost {
+  position: relative;
+  background: radial-gradient(circle at 50% 50%, var(--accent), color-mix(in srgb, var(--accent) 55%, var(--floor)));
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 70%, #fff);
+}
+
+.tile.boost::after {
+  content: "";
+  position: absolute;
+  inset: 30%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 0 12% color-mix(in srgb, var(--accent) 80%, #fff),
+    inset 0 0 0 30% color-mix(in srgb, var(--accent) 65%, #fff);
+}
+
 /* Ice: shiny pale-blue floor you slide across until you hit something. */
 .tile.ice {
   position: relative;

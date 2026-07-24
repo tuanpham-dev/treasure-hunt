@@ -35,13 +35,13 @@ const MazeKit = (function () {
     { cols: 6, rows: 5, targets: 5, braid: 0.7, tunnels: 1, name: "Big Yard" },
     { cols: 6, rows: 5, targets: 6, braid: 0.65, name: "Six Pack" },
     { cols: 7, rows: 5, targets: 6, braid: 0.6, name: "Crossroads" },
-    { cols: 7, rows: 5, targets: 7, braid: 0.55, name: "Hide and Seek" },
+    { cols: 7, rows: 5, targets: 7, braid: 0.55, arrows: 2, name: "Hide and Seek" },
     { cols: 7, rows: 6, targets: 7, braid: 0.5, name: "Winding Way" },
     { cols: 8, rows: 6, targets: 8, braid: 0.5, ice: 1, name: "The Long Hall" },
     { cols: 8, rows: 6, targets: 8, braid: 0.45, tunnels: 1, name: "Twist" },
     { cols: 8, rows: 6, targets: 9, braid: 0.4, name: "Nine Lives" },
     { cols: 9, rows: 6, targets: 9, braid: 0.4, name: "Side Streets" },
-    { cols: 9, rows: 7, targets: 10, braid: 0.35, name: "Ten Treasures" },
+    { cols: 9, rows: 7, targets: 10, braid: 0.35, arrows: 2, name: "Ten Treasures" },
     { cols: 9, rows: 7, targets: 10, braid: 0.32, name: "Corner Pockets" },
     { cols: 10, rows: 7, targets: 11, braid: 0.3, name: "The Maze Grows" },
     { cols: 10, rows: 7, targets: 11, braid: 0.28, tunnels: 1, name: "Dead End Alley" },
@@ -49,13 +49,13 @@ const MazeKit = (function () {
     { cols: 11, rows: 8, targets: 12, braid: 0.22, door: true, name: "Deep Woods" },
     { cols: 11, rows: 8, targets: 13, braid: 0.2, name: "Hidden Nooks" },
     { cols: 11, rows: 8, targets: 13, braid: 0.18, door: true, name: "The Spiral" },
-    { cols: 12, rows: 8, targets: 14, braid: 0.15, name: "Far and Wide" },
+    { cols: 12, rows: 8, targets: 14, braid: 0.15, arrows: 3, name: "Far and Wide" },
     { cols: 12, rows: 9, targets: 14, braid: 0.12, tunnels: 2, name: "Lost and Found" },
     { cols: 12, rows: 9, targets: 15, braid: 0.1, ice: 2, name: "The Labyrinth" },
     { cols: 12, rows: 9, targets: 15, braid: 0.08, door: true, name: "Every Corner" },
     { cols: 12, rows: 9, targets: 16, braid: 0.05, name: "Almost There" },
     { cols: 12, rows: 9, targets: 18, braid: 0.02, door: true, name: "Grand Treasure Hunt" },
-    { cols: 13, rows: 9, targets: 18, braid: 0.2, name: "Bigger Hunt" },
+    { cols: 13, rows: 9, targets: 18, braid: 0.2, arrows: 3, name: "Bigger Hunt" },
     { cols: 13, rows: 10, targets: 19, braid: 0.15, name: "The Warren" },
     { cols: 14, rows: 10, targets: 20, braid: 0.12, tunnels: 2, name: "Twist and Turn" },
     { cols: 14, rows: 10, targets: 20, braid: 0.1, name: "Maze Master" },
@@ -63,7 +63,7 @@ const MazeKit = (function () {
     { cols: 15, rows: 11, targets: 22, braid: 0.15, name: "The Gauntlet" },
     { cols: 15, rows: 11, targets: 22, braid: 0.1, door: true, name: "Tangle" },
     { cols: 15, rows: 11, targets: 23, braid: 0.06, name: "Far Reaches" },
-    { cols: 16, rows: 11, targets: 24, braid: 0.1, name: "The Sprawl" },
+    { cols: 16, rows: 11, targets: 24, braid: 0.1, arrows: 4, name: "The Sprawl" },
     { cols: 16, rows: 11, targets: 24, braid: 0.05, tunnels: 2, name: "Treasure Trove" },
     { cols: 16, rows: 12, targets: 25, braid: 0.12, name: "The Puzzle Box" },
     { cols: 16, rows: 12, targets: 25, braid: 0.08, ice: 2, name: "Winding Roads" },
@@ -72,7 +72,7 @@ const MazeKit = (function () {
     { cols: 17, rows: 12, targets: 27, braid: 0.04, door: true, name: "Scavenger Hunt" },
     { cols: 18, rows: 12, targets: 28, braid: 0.08, name: "The Labyrinth II" },
     { cols: 18, rows: 12, targets: 28, braid: 0.04, tunnels: 3, name: "Every Nook" },
-    { cols: 18, rows: 13, targets: 30, braid: 0.06, name: "The Long Haul" },
+    { cols: 18, rows: 13, targets: 30, braid: 0.06, arrows: 4, name: "The Long Haul" },
     { cols: 18, rows: 13, targets: 30, braid: 0.03, ice: 3, name: "Almost Endless" },
     { cols: 18, rows: 13, targets: 32, braid: 0.0, tunnels: 3, name: "Grand Finale" },
   ];
@@ -293,6 +293,32 @@ const MazeKit = (function () {
     }
   }
 
+  /* Boost pads (tile 4): stepping onto one scoots you one extra tile in the
+     direction you were already moving. Because it only ever carries you FORWARD
+     (never redirects), it can't strand a treasure — reachability is unchanged.
+     Placed on isolated cells away from the start/key/door/targets. */
+  function addArrows(grid, tw, th, count, rng, avoid) {
+    const cells = [];
+    for (let y = 1; y < th - 1; y += 2)
+      for (let x = 1; x < tw - 1; x += 2)
+        if (grid[y][x] === 0 && !avoid.has(x + "," + y)) cells.push({ x, y });
+    for (let i = cells.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      const t = cells[i];
+      cells[i] = cells[j];
+      cells[j] = t;
+    }
+    const blocked = new Set();
+    let placed = 0;
+    for (const c of cells) {
+      if (placed >= count) break;
+      if (blocked.has(c.x + "," + c.y)) continue;
+      grid[c.y][c.x] = 4;
+      placed++;
+      for (const [dx, dy] of DIRS) blocked.add(c.x + dx * 2 + "," + (c.y + dy * 2)); // keep pads apart
+    }
+  }
+
   /** Every target must sit on a floor tile the player can actually walk to. */
   function validateLevel(level) {
     const errors = [];
@@ -336,6 +362,72 @@ const MazeKit = (function () {
     const longest = reachable.reduce((m, t) => Math.max(m, dist[t.y][t.x]), 0);
 
     return { ok: errors.length === 0, errors, dist, longest };
+  }
+
+  const MOVE = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+
+  /* Resolve one move exactly like game.js does (tunnels, doors, ice slide, boost
+     pad). Returns { final, path } — the tiles crossed — or null if blocked. */
+  function simMove(level, pos, dir, hasKey) {
+    const g = level.grid;
+    const tw = level.tw;
+    const th = level.th;
+    const s = MOVE[dir];
+    let nx = pos.x + s[0];
+    let ny = pos.y + s[1];
+    if (ny < 0 || nx < 0 || ny >= th || nx >= tw) {
+      const link = level.tunnels && level.tunnels[pos.x + "," + pos.y];
+      if (!link) return null;
+      return { final: { x: link.x, y: link.y }, path: [{ x: link.x, y: link.y }] };
+    }
+    const v0 = g[ny][nx];
+    if (v0 === 1 || (v0 === 2 && !hasKey)) return null;
+    let fx = nx;
+    let fy = ny;
+    const path = [{ x: fx, y: fy }];
+    let guard = 0;
+    while (guard++ < 50) {
+      const v = g[fy][fx];
+      if (v !== 3 && v !== 4) break;
+      const ax = fx + s[0];
+      const ay = fy + s[1];
+      if (ay < 0 || ax < 0 || ay >= th || ax >= tw) break;
+      const nv = g[ay][ax];
+      if (nv === 1 || (nv === 2 && !hasKey)) break;
+      fx = ax;
+      fy = ay;
+      path.push({ x: fx, y: fy });
+      if (v === 4) break;
+    }
+    return { final: { x: fx, y: fy }, path };
+  }
+
+  /* True only if the player can actually collect every target under real
+     movement — the check that catches a treasure you'd always slide/boost past. */
+  function allCollectible(level) {
+    const got = new Set([level.start.x + "," + level.start.y]);
+    const seen = new Set();
+    const stack = [[level.start, false]];
+    const sk = (p, hk) => p.x + "," + p.y + ":" + hk;
+    seen.add(sk(level.start, false));
+    while (stack.length) {
+      const [pos, hk0] = stack.pop();
+      for (const d of ["up", "down", "left", "right"]) {
+        const r = simMove(level, pos, d, hk0);
+        if (!r) continue;
+        let hk = hk0;
+        for (const t of r.path) {
+          got.add(t.x + "," + t.y);
+          if (level.key && !hk && t.x === level.key.x && t.y === level.key.y) hk = true;
+        }
+        const st = sk(r.final, hk);
+        if (!seen.has(st)) {
+          seen.add(st);
+          stack.push([r.final, hk]);
+        }
+      }
+    }
+    return level.targets.every((t) => got.has(t.x + "," + t.y));
   }
 
   /* Warp tunnels: open the border on a few interior rows so the two openings on
@@ -393,6 +485,15 @@ const MazeKit = (function () {
       addIce(grid, tw, th, cfg.ice, rng, avoid);
     }
 
+    // Optional boost pads (tile 4). Keep them off the start/key/door and targets.
+    if (cfg.arrows) {
+      const avoid = new Set([start.x + "," + start.y]);
+      if (key) avoid.add(key.x + "," + key.y);
+      if (door) avoid.add(door.x + "," + door.y);
+      for (const t of targets) avoid.add(t.x + "," + t.y);
+      addArrows(grid, tw, th, cfg.arrows, rng, avoid);
+    }
+
     const level = {
       tunnels,
       door,
@@ -411,9 +512,11 @@ const MazeKit = (function () {
     };
 
     const report = validateLevel(level);
-    if (!report.ok) {
-      if (attempt < 40) return generateLevel(number, attempt + 1);
-      throw new Error(`Level ${number} failed validation: ${report.errors.join("; ")}`);
+    // Also require that real movement (ice/boost/door/tunnel) can actually reach
+    // every target — a plain BFS can't see a treasure you'd always slide past.
+    if (!report.ok || !allCollectible(level)) {
+      if (attempt < 60) return generateLevel(number, attempt + 1);
+      throw new Error(`Level ${number} failed validation: ${report.errors.join("; ") || "uncollectible target"}`);
     }
     level.longest = report.longest;
     return level;

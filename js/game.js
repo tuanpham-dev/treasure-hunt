@@ -255,20 +255,23 @@
       return;
     }
 
-    // ice: landing on an ice tile makes you slide the same direction until you
-    // hit a wall/locked door or slide off the ice onto a normal tile
+    // auto-tiles, both in the travel direction: ice (3) slides until it hits
+    // something; a boost pad (4) carries you exactly one extra tile forward.
     let fx = nx;
     let fy = ny;
-    if (!teleport && grid[fy][fx] === 3) {
-      while (true) {
+    if (!teleport) {
+      let guard = 0;
+      while (guard++ < 50) {
+        const v = grid[fy][fx];
+        if (v !== 3 && v !== 4) break; // normal tile → stop here
         const ax = fx + step.dx;
         const ay = fy + step.dy;
         if (ay < 0 || ax < 0 || ay >= state.level.th || ax >= state.level.tw) break;
-        const v = grid[ay][ax];
-        if (v === 1 || (v === 2 && !state.hasKey)) break;
+        const nv = grid[ay][ax];
+        if (nv === 1 || (nv === 2 && !state.hasKey)) break;
         fx = ax;
         fy = ay;
-        if (v !== 3) break; // slid off the ice — stop here
+        if (v === 4) break; // boost = one extra tile
       }
     }
 

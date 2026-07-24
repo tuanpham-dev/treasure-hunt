@@ -246,6 +246,28 @@ const Renderer3D = (function () {
       boardGroup.add(iceMesh);
     }
 
+    // Boost pads: a bright accent disc with a white centre on the floor
+    const boostCells = [];
+    for (let y = 0; y < level.th; y++)
+      for (let x = 0; x < level.tw; x++) if (level.grid[y][x] === 4) boostCells.push([x, y]);
+    boostCells.forEach(([x, y]) => {
+      const w = cellToWorld(x, y);
+      const pad = new THREE.Mesh(
+        new THREE.CircleGeometry(0.42, 24),
+        new THREE.MeshBasicMaterial({ color: col(colors.accent) })
+      );
+      pad.rotation.x = -Math.PI / 2;
+      pad.position.set(w.x, 0.05, w.z);
+      boardGroup.add(pad);
+      const dot = new THREE.Mesh(
+        new THREE.CircleGeometry(0.16, 20),
+        new THREE.MeshBasicMaterial({ color: col("#ffffff") })
+      );
+      dot.rotation.x = -Math.PI / 2;
+      dot.position.set(w.x, 0.06, w.z);
+      boardGroup.add(dot);
+    });
+
     // Targets: billboarded sprite + a soft accent halo disc on the floor
     const haloMat = new THREE.MeshBasicMaterial({
       color: col(colors.accent),
