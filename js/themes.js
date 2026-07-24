@@ -10,6 +10,10 @@ const Themes = (function () {
       player: "sp-chomper",
       target: "sp-dot",
       playerClass: "anim-chomp",
+      face: "spin",
+      faceBase: "right",
+      chomp: true,
+      playerScale: 0.85, // the pac shape fills its whole circle, so shrink it a bit in 3D
       colors: {
         bg: "#141748",
         bgGlow: "#242a86",
@@ -48,6 +52,7 @@ const Themes = (function () {
       player: "sp-princess",
       target: "sp-snowflake",
       playerClass: "anim-sway",
+      faceInvert: true,
       colors: {
         bg: "#cfeeff",
         bgGlow: "#eafaff",
@@ -105,6 +110,8 @@ const Themes = (function () {
       player: "sp-rocket",
       target: "sp-star",
       playerClass: "anim-hover",
+      face: "spin",
+      faceBase: "up",
       colors: {
         bg: "#1a1147",
         bgGlow: "#2e1f75",
@@ -194,6 +201,33 @@ const Themes = (function () {
     });
   }
 
+  /* How the player sprite orients to the travel direction.
+     Returns { rot: degrees-clockwise, mirror: bool } or null (keep current).
+     Renderers bake this into the image (2D: a transform on the sprite wrapper;
+     3D: a re-oriented texture), so it applies in both modes.
+     - Chomper (spin, art points right): mirror for left/right so the eye stays
+       up, rotate for up/down.
+     - Rocket (spin, art points up): pure rotation for all four.
+     - "flip" themes (Hero, Ice Princess, Kitty, Blue Pup): mirror on left/right,
+       unchanged on up/down. `faceInvert` swaps which side mirrors — Ice Princess
+       uses it so her braid sits left when walking right, right when walking left. */
+  function faceTransform(dir, theme) {
+    const mode = theme.face || "flip";
+    const dirAngle = { right: 0, down: 90, left: 180, up: -90 };
+    if (mode === "spin") {
+      if ((theme.faceBase || "right") === "up") {
+        return { rot: dirAngle[dir] + 90, mirror: false }; // base points up
+      }
+      // base points right: mirror horizontally for left/right, rotate up/down
+      if (dir === "left") return { rot: 0, mirror: true };
+      if (dir === "right") return { rot: 0, mirror: false };
+      return { rot: dirAngle[dir], mirror: false };
+    }
+    const mirrorDir = theme.faceInvert ? "right" : "left";
+    if (dir === "left" || dir === "right") return { rot: 0, mirror: dir === mirrorDir };
+    return null;
+  }
+
   const RENDER_MODES = [
     { id: "2d", name: "2D", blurb: "Flat & classic" },
     { id: "3d", name: "3D", blurb: "Pop-up world" },
@@ -221,6 +255,7 @@ const Themes = (function () {
     byId,
     speedById,
     apply,
+    faceTransform,
     renderThemeCards,
     renderSpeedButtons,
     renderModeToggle,

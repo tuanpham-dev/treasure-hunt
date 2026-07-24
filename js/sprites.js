@@ -218,18 +218,48 @@ const Sprites = (function () {
 
   /* A self-contained SVG for one symbol: all defs + symbols inlined plus a <use>,
      so a single <img> (e.g. a 3D CanvasTexture source) resolves it with no sheet.
-     Includes xlink:href alongside href for the widest <img> raster support. */
-  function standalone(id, px) {
+     Includes xlink:href alongside href for the widest <img> raster support.
+     `orient` is an optional SVG transform (rotate/mirror) baked into the image,
+     so 3D can face a direction by swapping textures instead of scaling sprites. */
+  function standalone(id, px, orient) {
     const s = px || 128;
+    const use = `<use href="#${id}" xlink:href="#${id}"/>`;
+    const body = orient ? `<g transform="${orient}">${use}</g>` : use;
     return (
       `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" ` +
       `viewBox="0 0 100 100" width="${s}" height="${s}">` +
       INNER +
-      `<use href="#${id}" xlink:href="#${id}"/></svg>`
+      body +
+      `</svg>`
     );
   }
 
-  return { inject, svg, standalone, SHEET };
+  /* A standalone chomper at a given mouth openness (half-angle in degrees).
+     3D can't run the CSS mouth animation on a rasterized texture, so the 3D
+     renderer cycles a few of these frames instead. Mouth opens to the right;
+     the renderer rotates/mirrors the sprite to face the travel direction. */
+  function chomperFrame(openDeg, px, orient) {
+    const s = px || 128;
+    const r = 42;
+    const a = (openDeg * Math.PI) / 180;
+    const lx = (50 + r * Math.cos(a)).toFixed(2);
+    const ly = (50 + r * Math.sin(a)).toFixed(2);
+    const ux = (50 + r * Math.cos(-a)).toFixed(2);
+    const uy = (50 + r * Math.sin(-a)).toFixed(2);
+    const path = `M50,50 L${lx},${ly} A${r},${r} 0 1 1 ${ux},${uy} Z`;
+    const body =
+      `<path d="${path}" fill="#ffd93d" stroke="#e8a800" stroke-width="4" stroke-linejoin="round"/>` +
+      `<circle cx="55" cy="27" r="6" fill="#4a3800"/>` +
+      `<circle cx="57" cy="25" r="2" fill="#fff8dc"/>`;
+    const g = orient ? `<g transform="${orient}">${body}</g>` : body;
+    return (
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="${s}" height="${s}">` +
+      g +
+      `</svg>`
+    );
+  }
+
+  return { inject, svg, standalone, chomperFrame, SHEET };
 })();
 
 if (typeof module !== "undefined" && module.exports) module.exports = Sprites;

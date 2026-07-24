@@ -231,7 +231,7 @@
     const ny = state.player.y + step.dy;
     const grid = state.level.grid;
 
-    if (dir === "left" || dir === "right") state.facing = dir;
+    state.facing = dir; // renderer decides how to present it per theme
 
     if (ny < 0 || nx < 0 || ny >= state.level.th || nx >= state.level.tw || grid[ny][nx] === 1) {
       renderer.bumpPlayer(dir);

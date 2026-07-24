@@ -17,6 +17,7 @@ const Renderer3D = (function () {
   let mounted = false;
 
   let colors = null; // theme palette
+  let theme3 = null; // full theme (for facing + chomp config)
   let level = null;
 
   let player = null; // { sprite, blob, from, to, moveStart, moveMs, facing, size, bumpDir, bumpStart }
@@ -34,9 +35,9 @@ const Renderer3D = (function () {
     return new THREE.Vector3(x - (level.tw - 1) / 2, 0, y - (level.th - 1) / 2);
   }
 
-  /* Rasterize a theme sprite (standalone SVG) into a cached CanvasTexture. */
-  function spriteTexture(id) {
-    if (texCache.has(id)) return texCache.get(id);
+  /* Rasterize any SVG string into a cached CanvasTexture. */
+  function svgTexture(cacheKey, svg) {
+    if (texCache.has(cacheKey)) return texCache.get(cacheKey);
     const size = 256;
     const cvs = document.createElement("canvas");
     cvs.width = cvs.height = size;
@@ -49,9 +50,28 @@ const Renderer3D = (function () {
       ctx.drawImage(img, 0, 0, size, size);
       tex.needsUpdate = true;
     };
-    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(Sprites.standalone(id, size));
-    texCache.set(id, tex);
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    texCache.set(cacheKey, tex);
     return tex;
+  }
+
+  function spriteTexture(id, orient) {
+    const o = orient || "";
+    return svgTexture("sp:" + id + ":" + o, Sprites.standalone(id, 256, o || undefined));
+  }
+
+  function chompTexture(deg, orient) {
+    const o = orient || "";
+    return svgTexture("chomp:" + deg + ":" + o, Sprites.chomperFrame(deg, 256, o || undefined));
+  }
+
+  /* SVG transform that faces the sprite art per faceTransform(). 3D bakes the
+     orientation into the texture rather than scaling the billboard. */
+  function orientStr(f) {
+    if (!f) return "";
+    if (f.mirror) return "translate(100,0) scale(-1,1)";
+    if (f.rot) return "rotate(" + f.rot + " 50 50)";
+    return "";
   }
 
   function makeSprite(id, size) {
@@ -110,6 +130,7 @@ const Renderer3D = (function () {
 
   function applyTheme(theme) {
     colors = theme.colors;
+    theme3 = theme;
     if (scene) scene.background = col(colors.bg);
   }
 
@@ -127,6 +148,7 @@ const Renderer3D = (function () {
   function buildLevel(lvl, theme) {
     level = lvl;
     colors = theme.colors;
+    theme3 = theme;
     if (scene) scene.background = col(colors.bg);
     clearBoard();
 
@@ -184,7 +206,8 @@ const Renderer3D = (function () {
 
     // Player: billboarded sprite + a blob shadow disc
     const pw = cellToWorld(level.start.x, level.start.y);
-    const sprite = makeSprite(theme.player, PLAYER_SIZE);
+    const pSize = PLAYER_SIZE * (theme.playerScale || 1);
+    const sprite = makeSprite(theme.player, pSize);
     sprite.position.set(pw.x, PLAYER_Y, pw.z);
     boardGroup.add(sprite);
     const blob = new THREE.Mesh(
@@ -202,11 +225,28 @@ const Renderer3D = (function () {
       to: sprite.position.clone(),
       moveStart: 0,
       moveMs: 1,
-      facing: "right",
-      size: PLAYER_SIZE,
+      size: pSize,
       bumpDir: null,
       bumpStart: 0,
+      chomp: null,
+      orient: "", // baked facing transform; "" = default (art's resting direction)
     };
+
+    // Pre-warm the oriented textures this theme can show, so turning doesn't
+    // wait on a texture rasterizing.
+    ["right", "left", "up", "down"].forEach((d) => {
+      const o = orientStr(Themes.faceTransform(d, theme));
+      if (theme.chomp) [40, 26, 10, 26].forEach((deg) => chompTexture(deg, o));
+      else spriteTexture(theme.player, o);
+    });
+
+    // Chomper can't run the CSS mouth animation on a static texture, so cycle a
+    // few mouth-open frames instead (each baked at the current facing).
+    if (theme.chomp) {
+      player.chomp = { degs: [40, 26, 10, 26], idx: -1 };
+      sprite.material.map = chompTexture(player.chomp.degs[0], player.orient);
+      sprite.material.needsUpdate = true;
+    }
 
     frameBoard();
   }
@@ -246,9 +286,17 @@ const Renderer3D = (function () {
     player.to = new THREE.Vector3(w.x, PLAYER_Y, w.z);
     player.moveStart = performance.now();
     player.moveMs = Math.max(1, moveMs);
-    if (facing === "left" || facing === "right") {
-      player.facing = facing;
-      player.sprite.scale.x = facing === "left" ? -player.size : player.size;
+
+    // Face the travel direction by swapping to a re-oriented texture (a mirror
+    // or rotation baked into the image), which reads reliably on a billboard.
+    // A null result (flip themes moving up/down) keeps the current image.
+    const f = Themes.faceTransform(facing, theme3);
+    if (f) {
+      player.orient = orientStr(f);
+      if (!player.chomp) {
+        player.sprite.material.map = spriteTexture(theme3.player, player.orient);
+        player.sprite.material.needsUpdate = true;
+      }
     }
   }
 
@@ -323,6 +371,17 @@ const Renderer3D = (function () {
       }
       player.sprite.position.copy(p);
       player.blob.position.set(p.x, 0.04, p.z);
+
+      // chomp: cycle the mouth-open frames, baked at the current facing
+      if (player.chomp) {
+        const i = Math.floor(now / 130) % player.chomp.degs.length;
+        const tex = chompTexture(player.chomp.degs[i], player.orient);
+        if (player.sprite.material.map !== tex) {
+          player.chomp.idx = i;
+          player.sprite.material.map = tex;
+          player.sprite.material.needsUpdate = true;
+        }
+      }
     }
 
     for (let i = targets.length - 1; i >= 0; i--) {

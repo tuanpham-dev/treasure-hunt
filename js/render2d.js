@@ -9,6 +9,8 @@ const Renderer2D = (function () {
   let theme = null;
   let level = null;
   let playerEl = null;
+  let facingEl = null;
+  let lastFace = null;
   const targetEls = new Map();
 
   function place(el, x, y) {
@@ -62,18 +64,24 @@ const Renderer2D = (function () {
 
     const player = document.createElement("div");
     player.className = "actor player";
-    player.innerHTML = Sprites.svg(theme.player, theme.playerClass || "");
+    // Facing lives on a wrapper so it doesn't fight the idle animation on .sprite.
+    player.innerHTML =
+      `<div class="player-facing">` + Sprites.svg(theme.player, theme.playerClass || "") + `</div>`;
     place(player, level.start.x, level.start.y);
     actors.appendChild(player);
     playerEl = player;
+    facingEl = player.querySelector(".player-facing");
+    lastFace = null;
 
     resize();
   }
 
   function movePlayer(x, y, facing, moveMs) {
     if (!playerEl) return;
-    if (facing === "left" || facing === "right") {
-      playerEl.classList.toggle("face-left", facing === "left");
+    const f = Themes.faceTransform(facing, theme);
+    if (f && facingEl) {
+      lastFace = f;
+      facingEl.style.transform = `rotate(${f.rot}deg) scaleX(${f.mirror ? -1 : 1})`;
     }
     playerEl.style.setProperty("--move-ms", moveMs + "ms");
     place(playerEl, x, y);
