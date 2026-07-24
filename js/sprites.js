@@ -111,19 +111,39 @@ const Sprites = (function () {
     <path d="M18,54 q6,4 12,1" stroke="#e87a3c" stroke-width="2.6" fill="none" stroke-linecap="round"/>
   </symbol>
 
-  <!-- ============ PUPPY ============ -->
+  <!-- ============ BLUE PUP (blue heeler) ============ -->
   <symbol id="sp-puppy" viewBox="0 0 100 100">
-    <ellipse cx="17" cy="56" rx="12" ry="24" fill="#a9723f"/>
-    <ellipse cx="83" cy="56" rx="12" ry="24" fill="#a9723f"/>
-    <circle cx="50" cy="52" r="33" fill="#d19a5e" stroke="#a9723f" stroke-width="3"/>
-    <ellipse cx="50" cy="70" rx="21" ry="16" fill="#f3ddc0"/>
-    <circle cx="38" cy="46" r="4.2" fill="#3b2a1c"/>
-    <circle cx="62" cy="46" r="4.2" fill="#3b2a1c"/>
-    <circle cx="39.5" cy="44.5" r="1.6" fill="#fff"/>
-    <circle cx="63.5" cy="44.5" r="1.6" fill="#fff"/>
-    <ellipse cx="50" cy="63" rx="8" ry="6" fill="#3b2a1c"/>
-    <path d="M50,69 v6 M50,75 q-7,6 -13,1 M50,75 q7,6 13,1" stroke="#8a5a33" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <path d="M44,80 q6,10 12,0 q-6,4 -12,0 z" fill="#f0768c"/>
+    <!-- upright ears (dark blue) -->
+    <path d="M25,38 L17,10 L47,28 z" fill="#3c5c96" stroke="#30507f" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M75,38 L83,10 L53,28 z" fill="#3c5c96" stroke="#30507f" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M29,32 L25,18 L41,28 z" fill="#7f9fce"/>
+    <path d="M71,32 L75,18 L59,28 z" fill="#7f9fce"/>
+    <!-- square head base (light blue-grey) -->
+    <rect x="18" y="24" width="64" height="60" rx="20" fill="#8fb3dc" stroke="#5f86ba" stroke-width="3"/>
+    <!-- darker cap over the top of the head, scalloped lower edge -->
+    <path d="M18,46 A20,20 0 0 1 38,24 L62,24 A20,20 0 0 1 82,46
+             C74,43 68,45 63,50
+             C58,42 54,44 50,50
+             C46,44 42,42 37,50
+             C32,45 26,43 18,46 Z" fill="#42639f"/>
+    <!-- lighter blaze up the middle of the face -->
+    <path d="M50,38 q6,12 4,24 q-4,4 -8,0 q-2,-12 4,-24 z" fill="#c2d6ee"/>
+    <!-- tan heeler cheek dabs -->
+    <ellipse cx="27" cy="62" rx="8" ry="8" fill="#d6a869" opacity="0.6"/>
+    <ellipse cx="73" cy="62" rx="8" ry="8" fill="#d6a869" opacity="0.6"/>
+    <!-- squarish cream muzzle -->
+    <rect x="31" y="60" width="38" height="26" rx="12" fill="#efe4cf"/>
+    <!-- eyes -->
+    <circle cx="38" cy="53" r="6.6" fill="#fff"/>
+    <circle cx="62" cy="53" r="6.6" fill="#fff"/>
+    <circle cx="38.6" cy="54" r="3.9" fill="#2a2320"/>
+    <circle cx="62.6" cy="54" r="3.9" fill="#2a2320"/>
+    <circle cx="40" cy="52.5" r="1.6" fill="#fff"/>
+    <circle cx="64" cy="52.5" r="1.6" fill="#fff"/>
+    <!-- square-ish nose + mouth + tongue -->
+    <rect x="42" y="62" width="16" height="11" rx="5" fill="#2a2320"/>
+    <path d="M50,73 v5 M50,78 q-7,6 -13,1 M50,78 q7,6 13,1" stroke="#6b5030" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M44,82 q6,9 12,0 q-6,4 -12,0 z" fill="#f0768c"/>
   </symbol>
 
   <symbol id="sp-bone" viewBox="0 0 100 100">
