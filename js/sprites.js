@@ -243,6 +243,97 @@ const Sprites = (function () {
     <circle cx="50" cy="25" r="5" fill="#ffb8d4"/>
   </symbol>
 
+  <!-- ============ GHOST ============ -->
+  <symbol id="sp-ghost" viewBox="0 0 100 100">
+    <path d="M22,80 L22,52 A28,28 0 0 1 78,52 L78,80 q-7,8 -14,0 q-7,-8 -14,0 q-7,8 -14,0 q-7,-8 -14,0 Z"
+          fill="#f4f7ff" stroke="#c8d2e8" stroke-width="3"/>
+    <ellipse cx="40" cy="50" rx="6" ry="8" fill="#3a3550"/>
+    <ellipse cx="60" cy="50" rx="6" ry="8" fill="#3a3550"/>
+    <ellipse cx="50" cy="66" rx="6" ry="7" fill="#3a3550"/>
+    <circle cx="42" cy="47" r="1.8" fill="#fff"/>
+    <circle cx="62" cy="47" r="1.8" fill="#fff"/>
+    <ellipse cx="32" cy="60" rx="4.5" ry="3.5" fill="#ffb3c1" opacity="0.7"/>
+    <ellipse cx="68" cy="60" rx="4.5" ry="3.5" fill="#ffb3c1" opacity="0.7"/>
+  </symbol>
+
+  <symbol id="sp-pumpkin" viewBox="0 0 100 100">
+    <rect x="46" y="15" width="8" height="14" rx="3" fill="#6a8f3a"/>
+    <path d="M53,18 q9,-9 15,-6 q-5,6 -14,10 z" fill="#7fa84a"/>
+    <ellipse cx="50" cy="58" rx="33" ry="28" fill="#ff8f2e" stroke="#e6741a" stroke-width="3"/>
+    <path d="M50,32 v52 M31,36 q-7,22 0,44 M69,36 q7,22 0,44"
+          stroke="#e6741a" stroke-width="2.5" fill="none"/>
+    <path d="M38,50 L48,50 L43,59 Z" fill="#5a2e00"/>
+    <path d="M62,50 L52,50 L57,59 Z" fill="#5a2e00"/>
+    <path d="M50,55 L45,62 L55,62 Z" fill="#5a2e00"/>
+    <path d="M34,64 Q50,79 66,64 L61,64 L58,69 L54,64 L50,69 L46,64 L42,69 L39,64 Z" fill="#5a2e00"/>
+  </symbol>
+
+  <!-- ============ SPIDER ============ -->
+  <symbol id="sp-spider" viewBox="0 0 100 100">
+    <g stroke="#241f33" stroke-width="4" fill="none" stroke-linecap="round">
+      <path d="M34,44 L14,34 L8,44"/>
+      <path d="M32,52 L10,50 L6,60"/>
+      <path d="M32,60 L12,66 L10,76"/>
+      <path d="M36,67 L21,80 L23,90"/>
+      <path d="M66,44 L86,34 L92,44"/>
+      <path d="M68,52 L90,50 L94,60"/>
+      <path d="M68,60 L88,66 L90,76"/>
+      <path d="M64,67 L79,80 L77,90"/>
+    </g>
+    <ellipse cx="50" cy="58" rx="24" ry="22" fill="#3a3350" stroke="#241f33" stroke-width="3"/>
+    <circle cx="50" cy="40" r="15" fill="#3a3350" stroke="#241f33" stroke-width="3"/>
+    <circle cx="44" cy="40" r="6" fill="#fff"/>
+    <circle cx="56" cy="40" r="6" fill="#fff"/>
+    <circle cx="44.5" cy="41" r="3" fill="#2a2320"/>
+    <circle cx="56.5" cy="41" r="3" fill="#2a2320"/>
+    <path d="M45,48 q5,4 10,0" stroke="#241f33" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  </symbol>
+
+  <symbol id="sp-fly" viewBox="0 0 100 100">
+    <ellipse cx="34" cy="40" rx="16" ry="10" fill="#d5edff" stroke="#9cc9e8" stroke-width="2.5" transform="rotate(-25 34 40)"/>
+    <ellipse cx="66" cy="40" rx="16" ry="10" fill="#d5edff" stroke="#9cc9e8" stroke-width="2.5" transform="rotate(25 66 40)"/>
+    <ellipse cx="50" cy="58" rx="15" ry="20" fill="#6cbf4a" stroke="#4a9430" stroke-width="3"/>
+    <path d="M37,58 h26 M39,68 h22" stroke="#4a9430" stroke-width="2.5"/>
+    <circle cx="44" cy="47" r="5" fill="#fff"/>
+    <circle cx="56" cy="47" r="5" fill="#fff"/>
+    <circle cx="44.5" cy="47.5" r="2.6" fill="#2a2320"/>
+    <circle cx="56.5" cy="47.5" r="2.6" fill="#2a2320"/>
+  </symbol>
+
+  <!-- ============ PIRATE ============ -->
+  <symbol id="sp-pirate" viewBox="0 0 100 100">
+    <path d="M26,92 v-6 a24,20 0 0 1 48,0 v6 z" fill="#3f7fd8"/>
+    <path d="M26,84 h48" stroke="#ffffff" stroke-width="4"/>
+    <circle cx="25" cy="54" r="5" fill="#f2c9a0"/>
+    <circle cx="75" cy="54" r="5" fill="#f2c9a0"/>
+    <path d="M25,60 a4,4 0 1 0 0.1,0" fill="none" stroke="#ffcf3d" stroke-width="2.5"/>
+    <circle cx="50" cy="52" r="27" fill="#f2c9a0"/>
+    <path d="M23,44 q3,-26 27,-26 q24,0 27,26 q-13,-9 -27,-9 q-14,0 -27,9 z" fill="#e23b3b"/>
+    <path d="M23,44 q27,-11 54,0 l0,-3 q-27,-11 -54,0 z" fill="#c62828"/>
+    <circle cx="22" cy="44" r="5" fill="#e23b3b"/>
+    <path d="M18,42 l-11,-5 l4,10 z" fill="#c62828"/>
+    <path d="M18,47 l-10,6 l8,5 z" fill="#c62828"/>
+    <circle cx="40" cy="33" r="2.4" fill="#fff"/>
+    <circle cx="54" cy="30" r="2.4" fill="#fff"/>
+    <circle cx="66" cy="35" r="2.4" fill="#fff"/>
+    <path d="M40,40 L70,48" stroke="#2a2320" stroke-width="3"/>
+    <ellipse cx="60" cy="52" rx="8" ry="9" fill="#2a2320"/>
+    <circle cx="40" cy="53" r="4" fill="#2a2320"/>
+    <circle cx="41.3" cy="51.7" r="1.3" fill="#fff"/>
+    <path d="M37,64 q11,9 22,1" stroke="#a05a33" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </symbol>
+
+  <symbol id="sp-chest" viewBox="0 0 100 100">
+    <rect x="18" y="46" width="64" height="33" rx="4" fill="#9c5f34" stroke="#6f4220" stroke-width="3"/>
+    <path d="M18,46 a32,22 0 0 1 64,0 Z" fill="#a86a3c" stroke="#6f4220" stroke-width="3"/>
+    <path d="M30,40 q20,-9 40,0" stroke="#8a5228" stroke-width="2" fill="none" opacity="0.6"/>
+    <rect x="15" y="43" width="70" height="7" rx="2" fill="#e8c25a" stroke="#a07c30" stroke-width="1.5"/>
+    <rect x="29" y="49" width="7" height="30" fill="#e8c25a" stroke="#a07c30" stroke-width="1.5"/>
+    <rect x="64" y="49" width="7" height="30" fill="#e8c25a" stroke="#a07c30" stroke-width="1.5"/>
+    <rect x="44" y="49" width="13" height="14" rx="2" fill="#ffcf3d" stroke="#c9992a" stroke-width="2"/>
+    <rect x="48.5" y="53" width="4" height="7" rx="2" fill="#7a4a24"/>
+  </symbol>
+
   <!-- ============ UI ICONS ============ -->
   <symbol id="ic-sound-on" viewBox="0 0 100 100">
     <path d="M20,38 h16 L56,20 v60 L36,62 h-16 z" fill="currentColor"/>
