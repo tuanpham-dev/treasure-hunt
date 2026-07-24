@@ -11,6 +11,8 @@ const Renderer2D = (function () {
   let playerEl = null;
   let facingEl = null;
   let lastFace = null;
+  let doorEl = null;
+  let keyEl = null;
   const targetEls = new Map();
 
   function place(el, x, y) {
@@ -43,14 +45,26 @@ const Renderer2D = (function () {
     let html = "";
     for (let y = 0; y < level.th; y++) {
       for (let x = 0; x < level.tw; x++) {
-        const wall = level.grid[y][x] === 1;
-        html += `<div class="tile ${wall ? "wall" : "floor"}"></div>`;
+        const v = level.grid[y][x];
+        const cls = v === 1 ? "wall" : v === 2 ? "door" : "floor";
+        html += `<div class="tile ${cls}"></div>`;
       }
     }
     tiles.innerHTML = html;
+    doorEl = level.door ? tiles.children[level.door.y * level.tw + level.door.x] : null;
 
     actors.innerHTML = "";
     targetEls.clear();
+
+    if (level.key) {
+      keyEl = document.createElement("div");
+      keyEl.className = "actor keyitem";
+      keyEl.innerHTML = Sprites.svg("sp-key", "anim-float");
+      place(keyEl, level.key.x, level.key.y);
+      actors.appendChild(keyEl);
+    } else {
+      keyEl = null;
+    }
 
     level.targets.forEach((tt, i) => {
       const el = document.createElement("div");
@@ -113,6 +127,20 @@ const Renderer2D = (function () {
     setTimeout(() => el.remove(), 800);
   }
 
+  function openDoor() {
+    if (doorEl) {
+      doorEl.classList.remove("door");
+      doorEl.classList.add("floor", "door-open");
+      doorEl = null;
+    }
+    if (keyEl) {
+      const el = keyEl;
+      el.classList.add("eaten");
+      setTimeout(() => el.remove(), 420);
+      keyEl = null;
+    }
+  }
+
   function resize() {
     if (!level) return;
     const wrap = $("board-wrap");
@@ -135,6 +163,7 @@ const Renderer2D = (function () {
     bumpPlayer,
     eatTarget,
     popScore,
+    openDoor,
     resize,
   };
 })();

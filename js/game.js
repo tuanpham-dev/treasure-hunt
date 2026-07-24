@@ -205,6 +205,7 @@
     state.picked = 0;
     state.busy = false;
     state.facing = "right";
+    state.hasKey = false;
     state.targetSet = new Set(state.level.targets.map((t) => t.x + "," + t.y));
     save();
 
@@ -247,7 +248,8 @@
       nx = link.x;
       ny = link.y;
       teleport = true;
-    } else if (grid[ny][nx] === 1) {
+    } else if (grid[ny][nx] === 1 || (grid[ny][nx] === 2 && !state.hasKey)) {
+      // wall, or a locked door and we don't have the key yet
       renderer.bumpPlayer(dir);
       Sound.bump();
       return;
@@ -260,6 +262,14 @@
     if (teleport) Sound.pickup(1);
     else Sound.step();
     hideCoach(); // player got the idea
+
+    // grab the key → open the door
+    const k = state.level.key;
+    if (k && !state.hasKey && nx === k.x && ny === k.y) {
+      state.hasKey = true;
+      renderer.openDoor();
+      Sound.levelClear();
+    }
 
     eatAt(nx, ny);
   }

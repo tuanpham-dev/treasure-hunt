@@ -34,7 +34,7 @@ for (let n = 1; n <= MazeKit.LEVEL_COUNT; n++) {
 
   let floors = 0;
   for (let y = 0; y < level.th; y++) {
-    for (let x = 0; x < level.tw; x++) if (level.grid[y][x] === 0) floors++;
+    for (let x = 0; x < level.tw; x++) if (level.grid[y][x] !== 1) floors++; // 0 floor + 2 door both walkable
   }
   let reached = 0;
   for (let y = 0; y < level.th; y++) {

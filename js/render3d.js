@@ -22,6 +22,8 @@ const Renderer3D = (function () {
 
   let player = null; // { sprite, blob, from, to, moveStart, moveMs, facing, size, bumpDir, bumpStart }
   let targets = []; // { sprite, halo, x, y, baseY, phase, eaten, eatenStart }
+  let doorMesh = null;
+  let keySprite = null;
 
   const texCache = new Map();
 
@@ -143,6 +145,22 @@ const Renderer3D = (function () {
     boardGroup.clear();
     targets = [];
     player = null;
+    doorMesh = null;
+    keySprite = null;
+  }
+
+  function openDoor() {
+    if (doorMesh) {
+      boardGroup.remove(doorMesh);
+      doorMesh.geometry.dispose();
+      doorMesh.material.dispose();
+      doorMesh = null;
+    }
+    if (keySprite) {
+      boardGroup.remove(keySprite);
+      keySprite.material.dispose();
+      keySprite = null;
+    }
   }
 
   function buildLevel(lvl, theme) {
@@ -184,6 +202,26 @@ const Renderer3D = (function () {
     wallMesh.instanceMatrix.needsUpdate = true;
     boardGroup.add(wallMesh);
 
+    // Locked door: a distinct wooden block that gets removed when the key is grabbed
+    doorMesh = null;
+    if (level.door) {
+      const dw = cellToWorld(level.door.x, level.door.y);
+      doorMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(1, WALL_H, 1),
+        new THREE.MeshLambertMaterial({ color: col("#a86a3c") })
+      );
+      doorMesh.position.set(dw.x, WALL_H / 2, dw.z);
+      doorMesh.castShadow = true;
+      doorMesh.receiveShadow = true;
+      boardGroup.add(doorMesh);
+      const lock = new THREE.Mesh(
+        new THREE.CircleGeometry(0.16, 16),
+        new THREE.MeshBasicMaterial({ color: col("#ffcf3d") })
+      );
+      lock.position.set(dw.x, WALL_H / 2 + 0.05, dw.z + 0.51);
+      doorMesh.add(lock);
+    }
+
     // Targets: billboarded sprite + a soft accent halo disc on the floor
     const haloMat = new THREE.MeshBasicMaterial({
       color: col(colors.accent),
@@ -217,6 +255,15 @@ const Renderer3D = (function () {
     blob.rotation.x = -Math.PI / 2;
     blob.position.set(pw.x, 0.04, pw.z);
     boardGroup.add(blob);
+
+    // Key collectible
+    keySprite = null;
+    if (level.key) {
+      const kw = cellToWorld(level.key.x, level.key.y);
+      keySprite = makeSprite("sp-key", TARGET_SIZE);
+      keySprite.position.set(kw.x, TARGET_Y, kw.z);
+      boardGroup.add(keySprite);
+    }
 
     player = {
       sprite,
@@ -430,6 +477,7 @@ const Renderer3D = (function () {
     bumpPlayer,
     eatTarget,
     popScore,
+    openDoor,
     resize,
   };
 })();

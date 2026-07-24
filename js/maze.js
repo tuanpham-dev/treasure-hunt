@@ -46,22 +46,22 @@ const MazeKit = (function () {
     { cols: 10, rows: 7, targets: 11, braid: 0.3, name: "The Maze Grows" },
     { cols: 10, rows: 7, targets: 11, braid: 0.28, tunnels: 1, name: "Dead End Alley" },
     { cols: 10, rows: 8, targets: 12, braid: 0.25, name: "Twelve Trail" },
-    { cols: 11, rows: 8, targets: 12, braid: 0.22, name: "Deep Woods" },
+    { cols: 11, rows: 8, targets: 12, braid: 0.22, door: true, name: "Deep Woods" },
     { cols: 11, rows: 8, targets: 13, braid: 0.2, name: "Hidden Nooks" },
-    { cols: 11, rows: 8, targets: 13, braid: 0.18, name: "The Spiral" },
+    { cols: 11, rows: 8, targets: 13, braid: 0.18, door: true, name: "The Spiral" },
     { cols: 12, rows: 8, targets: 14, braid: 0.15, name: "Far and Wide" },
     { cols: 12, rows: 9, targets: 14, braid: 0.12, tunnels: 2, name: "Lost and Found" },
     { cols: 12, rows: 9, targets: 15, braid: 0.1, name: "The Labyrinth" },
-    { cols: 12, rows: 9, targets: 15, braid: 0.08, name: "Every Corner" },
+    { cols: 12, rows: 9, targets: 15, braid: 0.08, door: true, name: "Every Corner" },
     { cols: 12, rows: 9, targets: 16, braid: 0.05, name: "Almost There" },
-    { cols: 12, rows: 9, targets: 18, braid: 0.02, name: "Grand Treasure Hunt" },
+    { cols: 12, rows: 9, targets: 18, braid: 0.02, door: true, name: "Grand Treasure Hunt" },
     { cols: 13, rows: 9, targets: 18, braid: 0.2, name: "Bigger Hunt" },
     { cols: 13, rows: 10, targets: 19, braid: 0.15, name: "The Warren" },
     { cols: 14, rows: 10, targets: 20, braid: 0.12, tunnels: 2, name: "Twist and Turn" },
     { cols: 14, rows: 10, targets: 20, braid: 0.1, name: "Maze Master" },
     { cols: 14, rows: 11, targets: 21, braid: 0.08, name: "Deep Dive" },
     { cols: 15, rows: 11, targets: 22, braid: 0.15, name: "The Gauntlet" },
-    { cols: 15, rows: 11, targets: 22, braid: 0.1, name: "Tangle" },
+    { cols: 15, rows: 11, targets: 22, braid: 0.1, door: true, name: "Tangle" },
     { cols: 15, rows: 11, targets: 23, braid: 0.06, name: "Far Reaches" },
     { cols: 16, rows: 11, targets: 24, braid: 0.1, name: "The Sprawl" },
     { cols: 16, rows: 11, targets: 24, braid: 0.05, tunnels: 2, name: "Treasure Trove" },
@@ -69,7 +69,7 @@ const MazeKit = (function () {
     { cols: 16, rows: 12, targets: 25, braid: 0.08, name: "Winding Roads" },
     { cols: 17, rows: 12, targets: 26, braid: 0.1, name: "Hidden Depths" },
     { cols: 17, rows: 12, targets: 26, braid: 0.05, name: "The Big Maze" },
-    { cols: 17, rows: 12, targets: 27, braid: 0.04, name: "Scavenger Hunt" },
+    { cols: 17, rows: 12, targets: 27, braid: 0.04, door: true, name: "Scavenger Hunt" },
     { cols: 18, rows: 12, targets: 28, braid: 0.08, name: "The Labyrinth II" },
     { cols: 18, rows: 12, targets: 28, braid: 0.04, tunnels: 3, name: "Every Nook" },
     { cols: 18, rows: 13, targets: 30, braid: 0.06, name: "The Long Haul" },
@@ -200,6 +200,56 @@ const MazeKit = (function () {
     return chosen.slice(0, count);
   }
 
+  /* Find a passage whose closing splits off a locked region (a "bridge"). The
+     door goes there; the key goes in the start region so it's always grabbable
+     first. Returns { door:{x,y}, startDist } or null. */
+  function findDoor(grid, tw, th, start, rng) {
+    const passages = [];
+    for (let y = 1; y < th - 1; y++) {
+      for (let x = 1; x < tw - 1; x++) {
+        if (grid[y][x] !== 0) continue;
+        if ((x % 2 === 0 && y % 2 === 1) || (x % 2 === 1 && y % 2 === 0)) passages.push({ x, y });
+      }
+    }
+    for (let i = passages.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      const t = passages[i];
+      passages[i] = passages[j];
+      passages[j] = t;
+    }
+    let totalFloor = 0;
+    for (let y = 0; y < th; y++) for (let x = 0; x < tw; x++) if (grid[y][x] === 0) totalFloor++;
+
+    for (const p of passages.slice(0, 60)) {
+      grid[p.y][p.x] = 1; // close it and see what gets cut off
+      const dist = bfs(grid, tw, th, start);
+      let reached = 0;
+      for (let y = 0; y < th; y++) for (let x = 0; x < tw; x++) if (dist[y][x] >= 0) reached++;
+      grid[p.y][p.x] = 0; // restore
+      const locked = totalFloor - reached;
+      if (locked >= 5 && locked <= totalFloor * 0.4) return { door: p, startDist: dist };
+    }
+    return null;
+  }
+
+  /* Key sits in the start region (reachable with the door closed), away from
+     the start, targets, and the door — preferring a dead end. */
+  function placeKey(startDist, grid, tw, th, start, targets, rng) {
+    const taken = new Set(targets.map((t) => t.x + "," + t.y));
+    taken.add(start.x + "," + start.y);
+    const cands = [];
+    for (let y = 0; y < th; y++) {
+      for (let x = 0; x < tw; x++) {
+        if (grid[y][x] !== 0 || startDist[y][x] < 0 || taken.has(x + "," + y)) continue;
+        let open = 0;
+        for (const [dx, dy] of DIRS) if (grid[y + dy] && grid[y + dy][x + dx] === 0) open++;
+        cands.push({ x, y, score: startDist[y][x] + (open <= 1 ? 20 : 0) + rng() * 8 });
+      }
+    }
+    cands.sort((a, b) => b.score - a.score);
+    return cands[0] || null;
+  }
+
   /** Every target must sit on a floor tile the player can actually walk to. */
   function validateLevel(level) {
     const errors = [];
@@ -207,14 +257,30 @@ const MazeKit = (function () {
 
     if (grid[start.y][start.x] !== 0) errors.push("player start is inside a wall");
 
-    const dist = bfs(grid, tw, th, start);
-    const seen = new Set();
+    // Doors (tile value 2) block until the key is grabbed. Check target/floor
+    // reachability with doors OPEN, and key reachability with them CLOSED.
+    let openGrid = grid;
+    if (level.door) {
+      openGrid = grid.map((row) => row.slice());
+      openGrid[level.door.y][level.door.x] = 0;
+    }
+    const dist = bfs(openGrid, tw, th, start); // doors open
+    const distClosed = level.door ? bfs(grid, tw, th, start) : dist; // doors closed
 
+    if (level.door) {
+      const k = level.key;
+      if (!k) errors.push("door has no key");
+      else if (grid[k.y][k.x] !== 0) errors.push("key is inside a wall");
+      else if (distClosed[k.y][k.x] < 0) errors.push("key is unreachable before the door");
+    }
+
+    const seen = new Set();
     targets.forEach((t, i) => {
       const key = t.x + "," + t.y;
-      if (grid[t.y][t.x] !== 0) errors.push(`target ${i + 1} at (${t.x},${t.y}) is inside a wall`);
+      if (grid[t.y][t.x] === 1) errors.push(`target ${i + 1} at (${t.x},${t.y}) is inside a wall`);
       else if (dist[t.y][t.x] < 0) errors.push(`target ${i + 1} at (${t.x},${t.y}) is unreachable`);
       if (t.x === start.x && t.y === start.y) errors.push(`target ${i + 1} sits on the player start`);
+      if (level.key && t.x === level.key.x && t.y === level.key.y) errors.push(`target ${i + 1} sits on the key`);
       if (seen.has(key)) errors.push(`two targets share tile (${t.x},${t.y})`);
       seen.add(key);
     });
@@ -223,7 +289,7 @@ const MazeKit = (function () {
       errors.push(`expected ${level.wantTargets} targets, placed ${targets.length}`);
     }
 
-    const reachable = targets.filter((t) => grid[t.y][t.x] === 0 && dist[t.y][t.x] >= 0);
+    const reachable = targets.filter((t) => grid[t.y][t.x] !== 1 && dist[t.y][t.x] >= 0);
     const longest = reachable.reduce((m, t) => Math.max(m, dist[t.y][t.x]), 0);
 
     return { ok: errors.length === 0, errors, dist, longest };
@@ -262,8 +328,24 @@ const MazeKit = (function () {
     const targets = placeTargets(grid, tw, th, start, cfg.targets, rng);
     const tunnels = cfg.tunnels ? addTunnels(grid, tw, th, cfg.rows, cfg.tunnels, rng) : null;
 
+    // Optional locked door: place it after targets (which spread across the open
+    // maze), then close it and drop a key in the reachable start region.
+    let door = null;
+    let key = null;
+    if (cfg.door) {
+      const found = findDoor(grid, tw, th, start, rng);
+      if (found) {
+        grid[found.door.y][found.door.x] = 2; // close the door
+        key = placeKey(found.startDist, grid, tw, th, start, targets, rng);
+        if (key) door = found.door;
+        else grid[found.door.y][found.door.x] = 0; // no key spot — abandon the door
+      }
+    }
+
     const level = {
       tunnels,
+      door,
+      key,
       number,
       name: cfg.name,
       grid,

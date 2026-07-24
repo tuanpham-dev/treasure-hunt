@@ -630,6 +630,57 @@ body {
   box-shadow: inset 0 3px 0 var(--wall-edge), inset 0 -3px 0 rgba(0, 0, 0, 0.18);
 }
 
+/* Locked door: a wooden-looking blocker with a gold keyhole, until you grab the key. */
+.tile.door {
+  background: #a86a3c;
+  border-radius: 8px;
+  box-shadow: inset 0 3px 0 #c98a5a, inset 0 -3px 0 rgba(0, 0, 0, 0.25),
+    inset 0 0 0 3px #7a4a24;
+  position: relative;
+}
+
+.tile.door::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 26%;
+  height: 26%;
+  transform: translate(-50%, -50%);
+  border-radius: 50% 50% 40% 40%;
+  background: #ffcf3d;
+  box-shadow: 0 34% 0 -8% #ffcf3d;
+}
+
+.tile.door-open {
+  animation: door-open 0.4s ease-out;
+}
+
+@keyframes door-open {
+  from {
+    background: #a86a3c;
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15) rotate(6deg);
+  }
+}
+
+/* The key collectible bobs like a target. */
+.actor.keyitem {
+  z-index: 2;
+}
+
+.actor.keyitem .sprite {
+  width: 66%;
+  height: 66%;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.actor.keyitem.eaten .sprite {
+  animation: eat-pop 0.4s ease-out forwards;
+}
+
 .actors {
   position: absolute;
   inset: 0;

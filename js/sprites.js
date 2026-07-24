@@ -791,6 +791,17 @@ const Sprites = (function () {
     <circle cx="44" cy="35" r="3.5" fill="#fff"/><circle cx="54" cy="34" r="3.5" fill="#fff"/><circle cx="49" cy="37" r="3" fill="#fff"/>
   </symbol>
 
+  <!-- ============ KEY (door mechanic) ============ -->
+  <symbol id="sp-key" viewBox="0 0 100 100">
+    <g transform="rotate(-35 50 50)">
+      <circle cx="30" cy="50" r="15" fill="none" stroke="#ffcf3d" stroke-width="9"/>
+      <circle cx="30" cy="50" r="5" fill="#e0a91f"/>
+      <rect x="42" y="45.5" width="38" height="9" rx="3" fill="#ffcf3d"/>
+      <rect x="70" y="54" width="8" height="12" rx="2" fill="#ffcf3d"/>
+      <rect x="60" y="54" width="7" height="9" rx="2" fill="#ffcf3d"/>
+    </g>
+  </symbol>
+
   <!-- ============ UI ICONS ============ -->
   <symbol id="ic-sound-on" viewBox="0 0 100 100">
     <path d="M20,38 h16 L56,20 v60 L36,62 h-16 z" fill="currentColor"/>
