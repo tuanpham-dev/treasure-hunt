@@ -84,21 +84,26 @@ const Sprites = (function () {
 
   <!-- ============ KITTY ============ -->
   <symbol id="sp-kitty" viewBox="0 0 100 100">
-    <path d="M20,44 L23,14 L46,29 z" fill="#ffb877" stroke="#ec8f3f" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M80,44 L77,14 L54,29 z" fill="#ffb877" stroke="#ec8f3f" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M27,38 L29,22 L41,31 z" fill="#ffd7bb"/>
-    <path d="M73,38 L71,22 L59,31 z" fill="#ffd7bb"/>
-    <circle cx="50" cy="57" r="33" fill="#ffb877" stroke="#ec8f3f" stroke-width="3"/>
-    <ellipse cx="38" cy="53" rx="6.5" ry="7.5" fill="#fff"/>
-    <ellipse cx="62" cy="53" rx="6.5" ry="7.5" fill="#fff"/>
-    <circle cx="38" cy="54" r="3.6" fill="#3b2a1c"/>
-    <circle cx="62" cy="54" r="3.6" fill="#3b2a1c"/>
-    <path d="M44,68 l6,5 l6,-5 z" fill="#f0768c"/>
-    <path d="M50,73 q-5,7 -11,3 M50,73 q5,7 11,3" stroke="#8a5a33" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-    <g stroke="#8a5a33" stroke-width="2.4" stroke-linecap="round">
-      <line x1="16" y1="60" x2="32" y2="63"/><line x1="16" y1="70" x2="32" y2="69"/>
-      <line x1="84" y1="60" x2="68" y2="63"/><line x1="84" y1="70" x2="68" y2="69"/>
+    <path d="M20,44 L23,14 L46,30 z" fill="#fafafa" stroke="#dcdce4" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M80,44 L77,14 L54,30 z" fill="#fafafa" stroke="#dcdce4" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M28,38 L30,23 L42,31 z" fill="#ffd0dc"/>
+    <path d="M72,38 L70,23 L58,31 z" fill="#ffd0dc"/>
+    <circle cx="50" cy="57" r="33" fill="#fafafa" stroke="#dcdce4" stroke-width="3"/>
+    <circle cx="30" cy="63" r="5" fill="#ffc2d4" opacity="0.75"/>
+    <circle cx="70" cy="63" r="5" fill="#ffc2d4" opacity="0.75"/>
+    <g stroke="#cfcfd8" stroke-width="2.4" stroke-linecap="round">
+      <line x1="12" y1="57" x2="29" y2="60"/><line x1="12" y1="68" x2="29" y2="66"/>
+      <line x1="88" y1="57" x2="71" y2="60"/><line x1="88" y1="68" x2="71" y2="66"/>
     </g>
+    <ellipse cx="38" cy="56" rx="4.6" ry="6.8" fill="#3b2a2e"/>
+    <ellipse cx="62" cy="56" rx="4.6" ry="6.8" fill="#3b2a2e"/>
+    <circle cx="39.6" cy="53.6" r="1.6" fill="#fff"/>
+    <circle cx="63.6" cy="53.6" r="1.6" fill="#fff"/>
+    <path d="M46,64 l4,4 l4,-4 z" fill="#ff9fb8"/>
+    <path d="M50,69 q-6,6 -11,1 M50,69 q6,6 11,1" stroke="#c98aa0" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <path d="M72,25 L60,18 Q55,25 60,32 L72,27 Z" fill="#ff5b8a" stroke="#e0436f" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M72,25 L84,18 Q89,25 84,32 L72,27 Z" fill="#ff5b8a" stroke="#e0436f" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="72" cy="26" r="4" fill="#ff86a8" stroke="#e0436f" stroke-width="2"/>
   </symbol>
 
   <symbol id="sp-fish" viewBox="0 0 100 100">
