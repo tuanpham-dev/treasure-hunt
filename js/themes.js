@@ -152,6 +152,8 @@ const Themes = (function () {
       player: "sp-octopus",
       target: "sp-shell",
       playerClass: "anim-sway",
+      face: "spin",
+      faceBase: "up",
       colors: {
         bg: "#123a52",
         bgGlow: "#1e5877",
