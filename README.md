@@ -10,9 +10,15 @@ library — Three.js, for the optional 3D mode — see "2D and 3D" below.)
 
 | Action | Gamepad | Keyboard | Touch |
 | --- | --- | --- | --- |
-| Move | D-pad or left stick | Arrow keys or WASD | On-screen D-pad |
+| Move / menu navigate | D-pad or left stick | Arrow keys or WASD | On-screen D-pad |
 | Choose / confirm | A or Start | Enter or Space | Tap |
-| Back | B or Select | Esc | Home button |
+| Back / home | B or Select | Esc | Home button |
+| Restart level | Y | (restart button) | Restart button |
+| Sound on/off | X | (sound button) | Sound button |
+
+The whole game is fully playable with a gamepad alone — no mouse needed. The
+D-pad navigates every menu (characters, speed, 2D/3D, level select) and confirms
+with A; in a level it moves the player, B returns home, Y restarts, X mutes.
 
 Hold a direction to keep moving. Bumping into a wall is harmless — there is no
 way to lose, no timer, and no game over.

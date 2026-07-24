@@ -5,6 +5,8 @@ const Input = (function () {
   const DPAD = { 12: "up", 13: "down", 14: "left", 15: "right" };
   const CONFIRM_BUTTONS = [0, 9]; // A / Start
   const BACK_BUTTONS = [1, 8]; // B / Select
+  const MUTE_BUTTONS = [2]; // X — toggle sound
+  const RESTART_BUTTONS = [3]; // Y — restart the level
   const DEAD_ZONE = 0.45;
   const FIRST_REPEAT_DELAY = 260; // grace period so one tap = one step
 
@@ -140,6 +142,8 @@ const Input = (function () {
       padDir = padDirection(pad);
       if (edgePressed(pad, CONFIRM_BUTTONS)) fire("confirm");
       if (edgePressed(pad, BACK_BUTTONS)) fire("back");
+      if (edgePressed(pad, MUTE_BUTTONS)) fire("mute");
+      if (edgePressed(pad, RESTART_BUTTONS)) fire("restart");
     }
 
     syncDir(now);

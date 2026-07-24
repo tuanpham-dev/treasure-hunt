@@ -503,6 +503,10 @@
       onConfirm: onConfirm,
       onBack: onBack,
       onPadChange: updatePadStatus,
+      onMute: () => $("btn-sound").click(), // X — toggle sound anywhere
+      onRestart: () => {
+        if (state.screen === "game") startLevel(state.levelNumber); // Y — restart the level
+      },
     });
 
     window.addEventListener("resize", () => renderer.resize());
