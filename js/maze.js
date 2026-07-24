@@ -255,10 +255,23 @@ const MazeKit = (function () {
      walkable (never blocks), so solvability is unchanged — it only makes the
      player slide. Avoids the start, key, and door tiles. */
   function addIce(grid, tw, th, count, rng, avoid) {
+    // A cell with only one open neighbour is a dead-end pocket. Ice there forces
+    // a slide in and back out with nowhere to go; keep ice on through-corridors
+    // (2+ open neighbours) so a slide just carries you along a real path.
+    const openNeighbours = (x, y) => {
+      let n = 0;
+      for (const [dx, dy] of DIRS) {
+        const row = grid[y + dy];
+        if (row && row[x + dx] !== undefined && row[x + dx] !== 1) n++;
+      }
+      return n;
+    };
+    const iceable = (x, y) =>
+      grid[y][x] === 0 && !avoid.has(x + "," + y) && openNeighbours(x, y) >= 2;
+
     const cells = [];
     for (let y = 1; y < th - 1; y += 2)
-      for (let x = 1; x < tw - 1; x += 2)
-        if (grid[y][x] === 0 && !avoid.has(x + "," + y)) cells.push({ x, y });
+      for (let x = 1; x < tw - 1; x += 2) if (iceable(x, y)) cells.push({ x, y });
     for (let i = cells.length - 1; i > 0; i--) {
       const j = Math.floor(rng() * (i + 1));
       const t = cells[i];
@@ -281,7 +294,7 @@ const MazeKit = (function () {
           if (nx < 1 || ny < 1 || nx >= tw - 1 || ny >= th - 1) continue;
           if (grid[ny][nx] !== 0) continue;
           const k = nx + "," + ny;
-          if (seen.has(k) || avoid.has(k)) continue;
+          if (seen.has(k) || avoid.has(k) || openNeighbours(nx, ny) < 2) continue;
           seen.add(k);
           q.push({ x: nx, y: ny });
         }
@@ -477,11 +490,14 @@ const MazeKit = (function () {
       }
     }
 
-    // Optional ice patches (tile 3). Keep them off the start, key, and door.
+    // Optional ice patches (tile 3). Keep them off the start, key, door, and
+    // every treasure — a treasure on ice can only be grabbed by a precise
+    // slide-to-stop, which plays as unfair.
     if (cfg.ice) {
       const avoid = new Set([start.x + "," + start.y]);
       if (key) avoid.add(key.x + "," + key.y);
       if (door) avoid.add(door.x + "," + door.y);
+      for (const t of targets) avoid.add(t.x + "," + t.y);
       addIce(grid, tw, th, cfg.ice, rng, avoid);
     }
 
