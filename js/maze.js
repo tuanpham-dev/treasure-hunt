@@ -32,49 +32,49 @@ const MazeKit = (function () {
     { cols: 5, rows: 4, targets: 4, braid: 0.8, name: "Four Corners" },
     { cols: 6, rows: 4, targets: 4, braid: 0.8, name: "Wander" },
     { cols: 6, rows: 4, targets: 5, braid: 0.7, name: "Loop the Loop" },
-    { cols: 6, rows: 5, targets: 5, braid: 0.7, name: "Big Yard" },
+    { cols: 6, rows: 5, targets: 5, braid: 0.7, tunnels: 1, name: "Big Yard" },
     { cols: 6, rows: 5, targets: 6, braid: 0.65, name: "Six Pack" },
     { cols: 7, rows: 5, targets: 6, braid: 0.6, name: "Crossroads" },
     { cols: 7, rows: 5, targets: 7, braid: 0.55, name: "Hide and Seek" },
     { cols: 7, rows: 6, targets: 7, braid: 0.5, name: "Winding Way" },
     { cols: 8, rows: 6, targets: 8, braid: 0.5, name: "The Long Hall" },
-    { cols: 8, rows: 6, targets: 8, braid: 0.45, name: "Twist" },
+    { cols: 8, rows: 6, targets: 8, braid: 0.45, tunnels: 1, name: "Twist" },
     { cols: 8, rows: 6, targets: 9, braid: 0.4, name: "Nine Lives" },
     { cols: 9, rows: 6, targets: 9, braid: 0.4, name: "Side Streets" },
     { cols: 9, rows: 7, targets: 10, braid: 0.35, name: "Ten Treasures" },
     { cols: 9, rows: 7, targets: 10, braid: 0.32, name: "Corner Pockets" },
     { cols: 10, rows: 7, targets: 11, braid: 0.3, name: "The Maze Grows" },
-    { cols: 10, rows: 7, targets: 11, braid: 0.28, name: "Dead End Alley" },
+    { cols: 10, rows: 7, targets: 11, braid: 0.28, tunnels: 1, name: "Dead End Alley" },
     { cols: 10, rows: 8, targets: 12, braid: 0.25, name: "Twelve Trail" },
     { cols: 11, rows: 8, targets: 12, braid: 0.22, name: "Deep Woods" },
     { cols: 11, rows: 8, targets: 13, braid: 0.2, name: "Hidden Nooks" },
     { cols: 11, rows: 8, targets: 13, braid: 0.18, name: "The Spiral" },
     { cols: 12, rows: 8, targets: 14, braid: 0.15, name: "Far and Wide" },
-    { cols: 12, rows: 9, targets: 14, braid: 0.12, name: "Lost and Found" },
+    { cols: 12, rows: 9, targets: 14, braid: 0.12, tunnels: 2, name: "Lost and Found" },
     { cols: 12, rows: 9, targets: 15, braid: 0.1, name: "The Labyrinth" },
     { cols: 12, rows: 9, targets: 15, braid: 0.08, name: "Every Corner" },
     { cols: 12, rows: 9, targets: 16, braid: 0.05, name: "Almost There" },
     { cols: 12, rows: 9, targets: 18, braid: 0.02, name: "Grand Treasure Hunt" },
     { cols: 13, rows: 9, targets: 18, braid: 0.2, name: "Bigger Hunt" },
     { cols: 13, rows: 10, targets: 19, braid: 0.15, name: "The Warren" },
-    { cols: 14, rows: 10, targets: 20, braid: 0.12, name: "Twist and Turn" },
+    { cols: 14, rows: 10, targets: 20, braid: 0.12, tunnels: 2, name: "Twist and Turn" },
     { cols: 14, rows: 10, targets: 20, braid: 0.1, name: "Maze Master" },
     { cols: 14, rows: 11, targets: 21, braid: 0.08, name: "Deep Dive" },
     { cols: 15, rows: 11, targets: 22, braid: 0.15, name: "The Gauntlet" },
     { cols: 15, rows: 11, targets: 22, braid: 0.1, name: "Tangle" },
     { cols: 15, rows: 11, targets: 23, braid: 0.06, name: "Far Reaches" },
     { cols: 16, rows: 11, targets: 24, braid: 0.1, name: "The Sprawl" },
-    { cols: 16, rows: 11, targets: 24, braid: 0.05, name: "Treasure Trove" },
+    { cols: 16, rows: 11, targets: 24, braid: 0.05, tunnels: 2, name: "Treasure Trove" },
     { cols: 16, rows: 12, targets: 25, braid: 0.12, name: "The Puzzle Box" },
     { cols: 16, rows: 12, targets: 25, braid: 0.08, name: "Winding Roads" },
     { cols: 17, rows: 12, targets: 26, braid: 0.1, name: "Hidden Depths" },
     { cols: 17, rows: 12, targets: 26, braid: 0.05, name: "The Big Maze" },
     { cols: 17, rows: 12, targets: 27, braid: 0.04, name: "Scavenger Hunt" },
     { cols: 18, rows: 12, targets: 28, braid: 0.08, name: "The Labyrinth II" },
-    { cols: 18, rows: 12, targets: 28, braid: 0.04, name: "Every Nook" },
+    { cols: 18, rows: 12, targets: 28, braid: 0.04, tunnels: 3, name: "Every Nook" },
     { cols: 18, rows: 13, targets: 30, braid: 0.06, name: "The Long Haul" },
     { cols: 18, rows: 13, targets: 30, braid: 0.03, name: "Almost Endless" },
-    { cols: 18, rows: 13, targets: 32, braid: 0.0, name: "Grand Finale" },
+    { cols: 18, rows: 13, targets: 32, braid: 0.0, tunnels: 3, name: "Grand Finale" },
   ];
 
   const LEVEL_COUNT = LEVELS.length;
@@ -229,6 +229,27 @@ const MazeKit = (function () {
     return { ok: errors.length === 0, errors, dist, longest };
   }
 
+  /* Warp tunnels: open the border on a few interior rows so the two openings on
+     opposite sides link up (walk off one edge, appear on the other). Only ever
+     removes wall, so it can't disconnect anything. Returns a tile->partner map. */
+  function addTunnels(grid, tw, th, rows, count, rng) {
+    const tunnels = {};
+    const used = new Set();
+    let added = 0;
+    for (let tries = 0; added < count && tries < 60; tries++) {
+      const cy = Math.floor(rng() * rows);
+      const Y = cy * 2 + 1;
+      if (used.has(Y)) continue;
+      used.add(Y);
+      grid[Y][0] = 0;
+      grid[Y][tw - 1] = 0;
+      tunnels["0," + Y] = { x: tw - 1, y: Y };
+      tunnels[tw - 1 + "," + Y] = { x: 0, y: Y };
+      added++;
+    }
+    return tunnels;
+  }
+
   /** Build level `number` (1-based). Retries with a fresh seed if validation ever fails. */
   function generateLevel(number, attempt) {
     attempt = attempt || 0;
@@ -239,8 +260,10 @@ const MazeKit = (function () {
     const { grid, tw, th } = generateMaze(cfg.cols, cfg.rows, cfg.braid, rng);
     const start = { x: 1, y: 1 };
     const targets = placeTargets(grid, tw, th, start, cfg.targets, rng);
+    const tunnels = cfg.tunnels ? addTunnels(grid, tw, th, cfg.rows, cfg.tunnels, rng) : null;
 
     const level = {
+      tunnels,
       number,
       name: cfg.name,
       grid,

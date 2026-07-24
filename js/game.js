@@ -229,13 +229,25 @@
     const step = STEP[dir];
     if (!step) return;
 
-    const nx = state.player.x + step.dx;
-    const ny = state.player.y + step.dy;
+    let nx = state.player.x + step.dx;
+    let ny = state.player.y + step.dy;
     const grid = state.level.grid;
 
     state.facing = dir; // renderer decides how to present it per theme
 
-    if (ny < 0 || nx < 0 || ny >= state.level.th || nx >= state.level.tw || grid[ny][nx] === 1) {
+    let teleport = false;
+    if (ny < 0 || nx < 0 || ny >= state.level.th || nx >= state.level.tw) {
+      // off the edge — take a warp tunnel if this tile has one, else bump
+      const link = state.level.tunnels && state.level.tunnels[state.player.x + "," + state.player.y];
+      if (!link) {
+        renderer.bumpPlayer(dir);
+        Sound.bump();
+        return;
+      }
+      nx = link.x;
+      ny = link.y;
+      teleport = true;
+    } else if (grid[ny][nx] === 1) {
       renderer.bumpPlayer(dir);
       Sound.bump();
       return;
@@ -244,8 +256,9 @@
     state.player.x = nx;
     state.player.y = ny;
     const moveMs = Math.round(Themes.speedById(state.speedId).ms * 0.7);
-    renderer.movePlayer(nx, ny, state.facing, moveMs);
-    Sound.step();
+    renderer.movePlayer(nx, ny, state.facing, moveMs, teleport);
+    if (teleport) Sound.pickup(1);
+    else Sound.step();
     hideCoach(); // player got the idea
 
     eatAt(nx, ny);

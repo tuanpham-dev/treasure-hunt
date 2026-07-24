@@ -279,13 +279,23 @@ const Renderer3D = (function () {
     sc.updateProjectionMatrix();
   }
 
-  function movePlayer(x, y, facing, moveMs) {
+  function movePlayer(x, y, facing, moveMs, teleport) {
     if (!player) return;
     const w = cellToWorld(x, y);
-    player.from = player.sprite.position.clone();
-    player.to = new THREE.Vector3(w.x, PLAYER_Y, w.z);
-    player.moveStart = performance.now();
-    player.moveMs = Math.max(1, moveMs);
+    const target = new THREE.Vector3(w.x, PLAYER_Y, w.z);
+    if (teleport) {
+      // warp tunnel: snap across instead of sliding the whole board
+      player.from = target.clone();
+      player.to = target;
+      player.sprite.position.copy(target);
+      player.blob.position.set(target.x, 0.04, target.z);
+      player.moveStart = performance.now() - 1000;
+    } else {
+      player.from = player.sprite.position.clone();
+      player.to = target;
+      player.moveStart = performance.now();
+      player.moveMs = Math.max(1, moveMs);
+    }
 
     // Face the travel direction by swapping to a re-oriented texture (a mirror
     // or rotation baked into the image), which reads reliably on a billboard.

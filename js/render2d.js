@@ -76,14 +76,15 @@ const Renderer2D = (function () {
     resize();
   }
 
-  function movePlayer(x, y, facing, moveMs) {
+  function movePlayer(x, y, facing, moveMs, teleport) {
     if (!playerEl) return;
     const f = Themes.faceTransform(facing, theme);
     if (f && facingEl) {
       lastFace = f;
       facingEl.style.transform = `rotate(${f.rot}deg) scaleX(${f.mirror ? -1 : 1})`;
     }
-    playerEl.style.setProperty("--move-ms", moveMs + "ms");
+    // teleport (warp tunnel) snaps across instead of sliding the whole board
+    playerEl.style.setProperty("--move-ms", (teleport ? 0 : moveMs) + "ms");
     place(playerEl, x, y);
   }
 
