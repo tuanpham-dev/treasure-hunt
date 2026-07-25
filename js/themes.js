@@ -458,6 +458,8 @@ const Themes = (function () {
       player: "sp-mermaid",
       target: "sp-pearl",
       playerClass: "anim-sway",
+      face: "spin",
+      faceBase: "up", // she swims toward the way she's moving (like the squid/octopus)
       colors: {
         bg: "#3aa0c0", bgGlow: "#5fc0d8", wall: "#3fc4c0", wallEdge: "#6fd8d4",
         floor: "#eafaff", floorLine: "#cdeff5", ink: "#164055", accent: "#ff9ec4", accentInk: "#ffffff",
