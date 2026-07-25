@@ -47,6 +47,11 @@ body {
   transition: background 0.4s ease, color 0.4s ease;
   overflow: hidden;
   -webkit-tap-highlight-color: transparent;
+  /* It's a game, not a document: never let a touch select text or pop the iOS
+     long-press callout — that gesture otherwise hijacks the on-screen D-pad. */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .sprite-host {
@@ -985,7 +990,9 @@ body.show-touchpad .touchpad {
   height: min(56vw, 240px);
   z-index: 15;
   touch-action: none;
+  -webkit-user-select: none;
   user-select: none;
+  -webkit-touch-callout: none;
 }
 
 /* When the pad is on screen, keep the board clear of it. */
@@ -1009,6 +1016,10 @@ body.show-touchpad .pad-status {
   place-items: center;
   transition: background 0.12s ease, transform 0.08s ease;
   -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .dpad-btn::before {
