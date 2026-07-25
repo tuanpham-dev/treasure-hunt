@@ -163,6 +163,11 @@ const Sprites = (function () {
   <!-- ============ ROCKET ============ -->
   <symbol id="sp-rocket" viewBox="0 0 100 100">
     <g class="fx" data-fx="flame">
+      <!-- flicker: scale vertically, then translate so the flame's top (y=74) stays put -->
+      <animateTransform attributeName="transform" attributeType="XML" type="scale" additive="sum"
+        values="1 0.7;1 1.1;1 0.7" keyTimes="0;0.5;1" dur="0.26s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" attributeType="XML" type="translate" additive="sum"
+        values="0 22.2;0 -7.4;0 22.2" keyTimes="0;0.5;1" dur="0.26s" repeatCount="indefinite"/>
       <path class="rocket-flame" d="M50,96 q-11,-12 -8,-22 h16 q3,10 -8,22 z" fill="#ff9f1c"/>
       <path class="rocket-flame" d="M50,88 q-6,-7 -4,-14 h8 q2,7 -4,14 z" fill="#ffd93d"/>
     </g>
@@ -191,6 +196,9 @@ const Sprites = (function () {
           fill="#ff7ea8" stroke="#e05a8f" stroke-width="3"/>
     <!-- tentacles -->
     <g class="fx" data-fx="sway" data-cx="50" data-cy="63" stroke="#ff7ea8" stroke-width="5" fill="none" stroke-linecap="round">
+      <animateTransform attributeName="transform" attributeType="XML" type="rotate"
+        values="-14 50 63;14 50 63;-14 50 63" keyTimes="0;0.5;1" calcMode="spline"
+        keySplines="0.42 0 0.58 1;0.42 0 0.58 1" dur="0.75s" repeatCount="indefinite"/>
       <path d="M38,62 q-6,14 -9,28"/>
       <path d="M45,65 q-3,15 -5,27"/>
       <path d="M50,66 q0,16 0,28"/>
@@ -217,6 +225,9 @@ const Sprites = (function () {
   <symbol id="sp-octopus" viewBox="0 0 100 100">
     <!-- tentacles (behind the head) -->
     <g class="fx" data-fx="sway" data-cx="50" data-cy="60" fill="#b07de0" stroke="#8a5bc4" stroke-width="2.5" stroke-linejoin="round">
+      <animateTransform attributeName="transform" attributeType="XML" type="rotate"
+        values="-14 50 60;14 50 60;-14 50 60" keyTimes="0;0.5;1" calcMode="spline"
+        keySplines="0.42 0 0.58 1;0.42 0 0.58 1" dur="0.75s" repeatCount="indefinite"/>
       <path d="M26,56 q-11,9 -8,25 q6,3 9,-2 q-4,-13 5,-19 z"/>
       <path d="M40,60 q-6,13 -9,25 q6,3 9,-2 q-2,-15 4,-21 z"/>
       <path d="M60,60 q6,13 9,25 q-6,3 -9,-2 q2,-15 -4,-21 z"/>
@@ -253,6 +264,9 @@ const Sprites = (function () {
   <!-- ============ GHOST ============ -->
   <symbol id="sp-ghost" viewBox="0 0 100 100">
     <g class="fx" data-fx="tail">
+      <animateTransform attributeName="transform" attributeType="XML" type="rotate"
+        values="-5 50 30;5 50 30;-5 50 30" keyTimes="0;0.5;1" calcMode="spline"
+        keySplines="0.42 0 0.58 1;0.42 0 0.58 1" dur="1.5s" repeatCount="indefinite"/>
       <path d="M22,80 L22,52 A28,28 0 0 1 78,52 L78,80 q-7,8 -14,0 q-7,-8 -14,0 q-7,8 -14,0 q-7,-8 -14,0 Z"
             fill="#f4f7ff" stroke="#c8d2e8" stroke-width="3"/>
     </g>
@@ -918,6 +932,8 @@ const Sprites = (function () {
     const sym = typeof document !== "undefined" && document.getElementById(id);
     if (!sym) return standalone(id, px, orient);
     const clone = sym.cloneNode(true);
+    // Drop the 2D SMIL animations; 3D bakes its own per-frame transform instead.
+    clone.querySelectorAll("animate, animateTransform, animateMotion, set").forEach((a) => a.remove());
     clone.querySelectorAll(".fx").forEach((g) => {
       const t = fxTransform(
         g.getAttribute("data-fx"),
