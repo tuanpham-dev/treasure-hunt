@@ -524,6 +524,9 @@ const Themes = (function () {
       root.style.setProperty("--" + key.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase()), value);
     });
     root.dataset.theme = theme.id;
+    // Match the PWA status/address bar to the current character's backdrop.
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta && theme.colors && theme.colors.bg) meta.setAttribute("content", theme.colors.bg);
   }
 
   function chevronIcon(count) {
