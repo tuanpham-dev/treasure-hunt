@@ -1,7 +1,7 @@
 /* Treasure Hunt service worker — offline app shell that still self-updates.
    Bump VERSION on release to force a clean cache swap. Paths are relative to the
    worker's location, so this works under a subpath (e.g. GitHub Pages). */
-const VERSION = "v1";
+const VERSION = "v2";
 const CACHE = "treasure-hunt-" + VERSION;
 const ASSETS = [
   "./",

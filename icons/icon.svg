@@ -7,10 +7,11 @@
     </radialGradient>
   </defs>
   <rect width="512" height="512" fill="url(#bg)"/>
-  <!-- treasure star, kept within the maskable safe zone (centred, ~62% wide) -->
-  <g transform="translate(106 112) scale(3)">
-    <path d="M50,8 L62,38 L95,41 L70,62 L78,94 L50,76 L22,94 L30,62 L5,41 L38,38 z"
+  <!-- Chomper (the game's Pac-Man-style character), within the maskable safe zone -->
+  <g transform="translate(86 86) scale(3.4)">
+    <path d="M50,50 L82.2,77 A42,42 0 1 1 82.2,23 Z"
           fill="#ffd93d" stroke="#e8a800" stroke-width="4" stroke-linejoin="round"/>
-    <circle cx="40" cy="42" r="5" fill="#fff6cf"/>
+    <circle cx="55" cy="27" r="6" fill="#4a3800"/>
+    <circle cx="57" cy="25" r="2" fill="#fff8dc"/>
   </g>
 </svg>
