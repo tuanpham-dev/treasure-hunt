@@ -68,7 +68,7 @@ const Renderer3D = (function () {
   }
 
   const FX_STEPS = 16; // frames per animation loop
-  const FX_LOOP = { flame: 260, sway: 1300, tail: 1500 }; // ms per loop, per fx type
+  const FX_LOOP = { flame: 260, sway: 750, tail: 1500 }; // ms per loop, per fx type
 
   function fxTexture(id, idx, orient) {
     const o = orient || "";

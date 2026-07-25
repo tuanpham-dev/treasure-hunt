@@ -902,7 +902,7 @@ const Sprites = (function () {
       return `translate(50 74) scale(${sx.toFixed(3)} ${k.toFixed(3)}) translate(-50 -74)`;
     }
     if (type === "sway") {
-      return `rotate(${(8 * Math.sin(phase)).toFixed(2)} ${cx} ${cy})`;
+      return `rotate(${(14 * Math.sin(phase)).toFixed(2)} ${cx} ${cy})`;
     }
     if (type === "tail") {
       // skew grows with distance below the pivot, so the bottom edge waggles
